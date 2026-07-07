@@ -1,0 +1,59 @@
+{
+  "name": "switchbay-engine-bay",
+  "version": "0.1.0",
+  "description": "Engine parts and templates for Switchbay: a terminal-first AI coding workbench.",
+  "root": "./",
+  "engines": [
+    {
+      "id": "gumops",
+      "displayName": "GumOps",
+      "path": "engines/Python/Gumroad/",
+      "type": "python",
+      "entrypoints": [
+        "engines/Python/Gumroad/gumgent.py",
+        "engines/Python/Gumroad/gumsdk.py",
+        "engines/Python/Gumroad/lms_sdk.py"
+      ]
+    },
+    {
+      "id": "facebook",
+      "displayName": "Facebook",
+      "path": "engines/Python/Facebook/",
+      "type": "python",
+      "entrypoints": [
+        "engines/Python/Facebook/fbgent.py",
+        "engines/Python/Facebook/fb_api.py"
+      ]
+    },
+    {
+      "id": "file-helper",
+      "displayName": "File Helper",
+      "path": "engines/Python/FileHelper/",
+      "type": "python",
+      "entrypoints": [
+        "engines/Python/FileHelper/file_helper.py"
+      ]
+    },
+    {
+      "id": "ruby-text-helper",
+      "displayName": "Text Helper",
+      "path": "engines/Ruby/",
+      "type": "ruby",
+      "entrypoints": [
+        "engines/Ruby/text_helper.rb"
+      ]
+    }
+  ],
+  "files": [
+    "README.md",
+    "engines/Python/Gumroad/gumgent.py",
+    "engines/Python/Gumroad/gumsdk.py",
+    "engines/Python/Gumroad/lms_sdk.py",
+    "engines/Python/Gumroad/shopgent.py",
+    "engines/Python/Gumroad/working_memory/working_memory.py",
+    "engines/Python/Facebook/fbgent.py",
+    "engines/Python/Facebook/fb_api.py",
+    "engines/Ruby/text_helper.rb",
+    "engines/Python/FileHelper/file_helper.py"
+  ]
+}
