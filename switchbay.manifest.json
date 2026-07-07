@@ -42,6 +42,16 @@
       "entrypoints": [
         "engines/Ruby/text_helper.rb"
       ]
+    },
+    {
+      "id": "macos-agent",
+      "displayName": "MacOS Agent",
+      "path": "engines/Python/MacOS/",
+      "type": "python",
+      "entrypoints": [
+        "engines/Python/MacOS/macos_agent.py",
+        "engines/Python/MacOS/finder_safe.py"
+      ]
     }
   ],
   "files": [
@@ -54,6 +64,8 @@
     "engines/Python/Facebook/fbgent.py",
     "engines/Python/Facebook/fb_api.py",
     "engines/Ruby/text_helper.rb",
-    "engines/Python/FileHelper/file_helper.py"
+    "engines/Python/FileHelper/file_helper.py",
+    "engines/Python/MacOS/macos_agent.py",
+    "engines/Python/MacOS/finder_safe.py"
   ]
 }

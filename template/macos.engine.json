@@ -1,0 +1,190 @@
+{
+  "id": "macos_agent",
+  "name": "MacOS Agent",
+  "description": "A local Switchbay engine for assisting with MacOS tasks using safe, agent-callable tools.",
+  "cwd": "/absolute/path/to/macos-agent",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Check that the engine is installed and ready.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py status",
+      "parameters": {}
+    },
+    {
+      "name": "query",
+      "description": "Inspect or summarize local MacOS context.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py query --text {{query}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Question, instruction, or context for the engine."
+        }
+      }
+    },
+    {
+      "name": "open_app",
+      "description": "Open an app, file, folder, or URL on macOS.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py open-app --target {{target}}",
+      "required": ["target"],
+      "parameters": {
+        "target": {
+          "type": "string",
+          "description": "Application, file path, folder path, or URL to open."
+        }
+      }
+    },
+    {
+      "name": "run_script",
+      "description": "Run a bounded shell or AppleScript command on the local Mac.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py run-script --script {{script}}",
+      "required": ["script"],
+      "parameters": {
+        "script": {
+          "type": "string",
+          "description": "Shell or AppleScript snippet to execute locally."
+        }
+      },
+      "approval": "always",
+      "approval_reason": "Running local scripts can change system state or access user data."
+    },
+    {
+      "name": "defaults_get",
+      "description": "Read a macOS user preference value.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py defaults-get --domain {{domain}} --key {{key}}",
+      "required": ["domain", "key"],
+      "parameters": {
+        "domain": {
+          "type": "string",
+          "description": "Defaults domain, such as com.apple.finder."
+        },
+        "key": {
+          "type": "string",
+          "description": "Preference key to read."
+        }
+      }
+    },
+    {
+      "name": "defaults_set",
+      "description": "Write a macOS user preference value.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py defaults-set --domain {{domain}} --key {{key}} --value {{value}}",
+      "required": ["domain", "key", "value"],
+      "parameters": {
+        "domain": {
+          "type": "string",
+          "description": "Defaults domain, such as com.apple.finder."
+        },
+        "key": {
+          "type": "string",
+          "description": "Preference key to write."
+        },
+        "value": {
+          "type": "string",
+          "description": "Value to write."
+        }
+      },
+      "approval": "always",
+      "approval_reason": "Writing defaults changes user configuration."
+    },
+    {
+      "name": "notify",
+      "description": "Show a local macOS notification.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py notify --title {{title}} --message {{message}}",
+      "required": ["title", "message"],
+      "parameters": {
+        "title": {
+          "type": "string",
+          "description": "Notification title."
+        },
+        "message": {
+          "type": "string",
+          "description": "Notification body."
+        }
+      }
+    },
+    {
+      "name": "clipboard_get",
+      "description": "Read the current clipboard contents.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py clipboard-get",
+      "parameters": {}
+    },
+    {
+      "name": "clipboard_set",
+      "description": "Set the clipboard contents.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py clipboard-set --text {{text}}",
+      "required": ["text"],
+      "parameters": {
+        "text": {
+          "type": "string",
+          "description": "Text to place on the clipboard."
+        }
+      }
+    },
+    {
+      "name": "screenshot",
+      "description": "Capture a screenshot to a local file.",
+      "command": "python3 engines/Python/MacOS/macos_agent.py screenshot --output {{output}}",
+      "required": ["output"],
+      "parameters": {
+        "output": {
+          "type": "string",
+          "description": "Destination file path for the screenshot."
+        }
+      },
+      "approval": "always",
+      "approval_reason": "Screenshots can capture sensitive on-screen content."
+    },
+    {
+      "name": "finder_show",
+      "description": "Safely reveal a user-space file or folder in Finder.",
+      "command": "python3 engines/Python/MacOS/finder_safe.py show --path {{path}}",
+      "required": ["path"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "User-space path to reveal."
+        }
+      }
+    },
+    {
+      "name": "finder_open",
+      "description": "Safely open a user-space file or folder in Finder.",
+      "command": "python3 engines/Python/MacOS/finder_safe.py open --path {{path}}",
+      "required": ["path"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "User-space path to open."
+        }
+      }
+    },
+    {
+      "name": "finder_info",
+      "description": "Safely inspect file or folder metadata.",
+      "command": "python3 engines/Python/MacOS/finder_safe.py info --path {{path}}",
+      "required": ["path"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "User-space path to inspect."
+        }
+      }
+    },
+    {
+      "name": "finder_reveal_parent",
+      "description": "Reveal the parent folder for a user-space path.",
+      "command": "python3 engines/Python/MacOS/finder_safe.py reveal-parent --path {{path}}",
+      "required": ["path"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "User-space path whose parent should be revealed."
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": ["delete", "kill", "shutdown", "restart", "logout", "write_system", "defaults_set", "send", "deploy", "run_script", "screenshot"]
+  }
+}
+
