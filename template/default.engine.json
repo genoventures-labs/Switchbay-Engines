@@ -1,0 +1,66 @@
+{
+  "id": "my_engine",
+  "name": "My Engine",
+  "description": "A local Switchbay engine that exposes a small set of commands as agent-callable tools.",
+  "cwd": "/absolute/path/to/my-engine",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Check that the engine is installed and ready.",
+      "command": "bun run status",
+      "parameters": {}
+    },
+    {
+      "name": "query",
+      "description": "Ask the engine to inspect or summarize local context.",
+      "command": "bun run query --text {{query}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Question, instruction, or context for the engine."
+        }
+      }
+    },
+    {
+      "name": "preview",
+      "description": "Preview a planned change without writing to external systems.",
+      "command": "bun run preview --target {{target}}",
+      "required": ["target"],
+      "parameters": {
+        "target": {
+          "type": "string",
+          "description": "File, record, route, product, or object to preview."
+        }
+      }
+    },
+    {
+      "name": "apply",
+      "description": "Apply a change through the engine. This always requires approval.",
+      "command": "bun run apply --target {{target}} --note {{note}}",
+      "required": ["target"],
+      "parameters": {
+        "target": {
+          "type": "string",
+          "description": "File, record, route, product, or object to change."
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional reason or operator note."
+        }
+      },
+      "approval": "always",
+      "approval_reason": "Apply writes or external side effects through this engine."
+    }
+  ],
+  "approval": {
+    "always": [
+      "apply",
+      "publish",
+      "delete",
+      "refund",
+      "send",
+      "deploy"
+    ]
+  }
+}
