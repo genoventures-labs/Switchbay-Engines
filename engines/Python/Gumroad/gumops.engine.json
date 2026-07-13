@@ -1,36 +1,201 @@
 {
   "id": "gumops",
-  "name": "GumOps",
-  "description": "Gumroad operations agent with working memory. Query products, manage sales, interact with the LMS SDK, and maintain a persistent local memory store — all via a local LLM.",
+  "name": "GumOps Engine",
+  "description": "Direct Gumroad API engine for seller operations: products, sales, analytics, refunds, and working memory. Uses GUMROAD_ACCESS_TOKEN from environment.",
+  "cwd": "/Users/cass/Documents/GitHub/Switchbay Engines",
   "tools": [
     {
-      "name": "query",
-      "description": "Ask the GumOps agent a question. The agent uses working memory and available Gumroad tools to respond.",
-      "command": "python engines/Python/Gumroad/gumgent.py query {{text}}",
-      "required": ["text"],
+      "name": "gum_account_info",
+      "description": "Return account info for the configured Gumroad seller: name, email, product count, and sales count.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py account_info",
+      "parameters": {}
+    },
+    {
+      "name": "gum_list_products",
+      "description": "List Gumroad products for the seller. Returns id, name, and permalink for each product.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py list_products --page {{page}}",
       "parameters": {
-        "text": {
-          "type": "string",
-          "description": "The question or instruction to send to the GumOps agent."
+        "page": {
+          "type": "integer",
+          "description": "Page number to fetch (default: 1).",
+          "default": 1
         }
       }
     },
     {
-      "name": "refresh_memory",
-      "description": "Refresh working memory with the latest data from Gumroad.",
-      "command": "python engines/Python/Gumroad/gumgent.py refresh-memory",
+      "name": "gum_get_product",
+      "description": "Get full details for a single Gumroad product by ID.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py get_product --product_id {{product_id}}",
+      "required": ["product_id"],
+      "parameters": {
+        "product_id": {
+          "type": "string",
+          "description": "The Gumroad product ID."
+        }
+      }
+    },
+    {
+      "name": "gum_find_product",
+      "description": "Find a Gumroad product by name (case-insensitive). Returns the first match.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py find_product --name {{name}}",
+      "required": ["name"],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "The product name to search for."
+        }
+      }
+    },
+    {
+      "name": "gum_sales_summary",
+      "description": "Return a high-level summary of all Gumroad sales: total count, total revenue, and total refunds.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py sales_summary",
       "parameters": {}
     },
     {
-      "name": "memory_list",
-      "description": "List all keys currently stored in working memory.",
-      "command": "python engines/Python/Gumroad/gumgent.py memory list",
+      "name": "gum_sales_by_product",
+      "description": "Return sales grouped and totalled by product ID.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py sales_by_product",
       "parameters": {}
     },
     {
-      "name": "memory_get",
+      "name": "gum_sales_by_month",
+      "description": "Return sales grouped by month (YYYY-MM), with count and revenue per month.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py sales_by_month",
+      "parameters": {}
+    },
+    {
+      "name": "gum_top_products",
+      "description": "Return the top N Gumroad products ranked by total revenue.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py top_products --top_n {{top_n}}",
+      "parameters": {
+        "top_n": {
+          "type": "integer",
+          "description": "Number of top products to return (default: 5).",
+          "default": 5
+        }
+      }
+    },
+    {
+      "name": "gum_top_customers",
+      "description": "Return the top N Gumroad customers ranked by total spend.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py top_customers --top_n {{top_n}}",
+      "parameters": {
+        "top_n": {
+          "type": "integer",
+          "description": "Number of top customers to return (default: 5).",
+          "default": 5
+        }
+      }
+    },
+    {
+      "name": "gum_find_sales_by_email",
+      "description": "Find all Gumroad sales made by a specific buyer email address.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py find_sales_by_email --email {{email}}",
+      "required": ["email"],
+      "parameters": {
+        "email": {
+          "type": "string",
+          "description": "Buyer email address to search for."
+        }
+      }
+    },
+    {
+      "name": "gum_sales_report",
+      "description": "Generate a comprehensive Gumroad sales report: overall summary, monthly breakdown, by-product breakdown, top products, and top customers.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py sales_report",
+      "parameters": {}
+    },
+    {
+      "name": "gum_compare_months",
+      "description": "Compare Gumroad sales between two months. Returns counts, revenue, and differences.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py compare_months --month1 {{month1}} --month2 {{month2}}",
+      "required": ["month1", "month2"],
+      "parameters": {
+        "month1": {
+          "type": "string",
+          "description": "First month in YYYY-MM format."
+        },
+        "month2": {
+          "type": "string",
+          "description": "Second month in YYYY-MM format."
+        }
+      }
+    },
+    {
+      "name": "gum_customer_report",
+      "description": "Generate a full report for a specific customer: all their purchases and total spend.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py customer_report --email {{email}}",
+      "required": ["email"],
+      "parameters": {
+        "email": {
+          "type": "string",
+          "description": "Customer email address."
+        }
+      }
+    },
+    {
+      "name": "gum_product_report",
+      "description": "Generate a report for a specific product: info, sales summary, and individual sale records.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py product_report --product_id {{product_id}}",
+      "required": ["product_id"],
+      "parameters": {
+        "product_id": {
+          "type": "string",
+          "description": "The Gumroad product ID."
+        }
+      }
+    },
+    {
+      "name": "gum_refund_preview",
+      "description": "Preview a Gumroad refund (dry run). Shows what would happen without executing the refund.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py refund_preview --sale_id {{sale_id}} --amount {{amount}}",
+      "required": ["sale_id"],
+      "parameters": {
+        "sale_id": {
+          "type": "string",
+          "description": "The Gumroad sale ID to preview refund for."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Partial refund amount in dollars. Omit for full refund."
+        }
+      }
+    },
+    {
+      "name": "gum_refund_sale",
+      "description": "Refund a Gumroad sale by ID. Omit amount for a full refund. This action is irreversible.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py refund_sale --sale_id {{sale_id}} --amount {{amount}}",
+      "required": ["sale_id"],
+      "parameters": {
+        "sale_id": {
+          "type": "string",
+          "description": "The Gumroad sale ID to refund."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Partial refund amount in dollars. Omit for full refund."
+        }
+      },
+      "approval": "always",
+      "approval_reason": "Refunding a sale sends money back to the buyer and cannot be undone."
+    },
+    {
+      "name": "gum_refresh_memory",
+      "description": "Fetch the latest products, sales summary, and account info from Gumroad and store them in working memory.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py refresh_memory",
+      "parameters": {}
+    },
+    {
+      "name": "gum_memory_list",
+      "description": "List all keys stored in the GumOps working memory store.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py memory_list",
+      "parameters": {}
+    },
+    {
+      "name": "gum_memory_get",
       "description": "Retrieve a working memory entry by key.",
-      "command": "python engines/Python/Gumroad/gumgent.py memory get {{key}}",
+      "command": "python engines/Python/Gumroad/gumops_runner.py memory_get --key {{key}}",
       "required": ["key"],
       "parameters": {
         "key": {
@@ -40,9 +205,9 @@
       }
     },
     {
-      "name": "memory_add",
-      "description": "Add or update a working memory entry.",
-      "command": "python engines/Python/Gumroad/gumgent.py memory add {{key}} {{value}}",
+      "name": "gum_memory_add",
+      "description": "Add or update a working memory entry by key.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py memory_add --key {{key}} --value {{value}}",
       "required": ["key", "value"],
       "parameters": {
         "key": {
@@ -56,28 +221,29 @@
       }
     },
     {
-      "name": "memory_find",
-      "description": "Search working memory entries by a query string.",
-      "command": "python engines/Python/Gumroad/gumgent.py memory find {{query}}",
+      "name": "gum_memory_find",
+      "description": "Search working memory entries by matching a query string against keys, values, and metadata.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py memory_find --query {{query}}",
       "required": ["query"],
       "parameters": {
         "query": {
           "type": "string",
-          "description": "Search query to match against memory keys, values, and metadata."
+          "description": "Search query string."
         }
       }
     },
     {
-      "name": "list_tools",
-      "description": "List all tools available to the GumOps agent.",
-      "command": "python engines/Python/Gumroad/gumgent.py tools list",
+      "name": "gum_memory_summary",
+      "description": "Return a timestamped summary of recent working memory items.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py memory_summary",
       "parameters": {}
     }
   ],
   "approval": {
-    "always": []
+    "always": ["gum_refund_sale"]
   },
   "env": {
+    "GUMROAD_ACCESS_TOKEN": "",
     "LMSTUDIO_API_BASE": "http://127.0.0.1:1234"
   }
 }

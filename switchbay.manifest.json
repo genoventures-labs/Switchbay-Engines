@@ -6,13 +6,19 @@
   "engines": [
     {
       "id": "gumops",
-      "displayName": "GumOps",
+      "displayName": "GumOps Engine",
       "path": "engines/Python/Gumroad/",
       "type": "python",
+      "manifest": "engines/Python/Gumroad/gumops.engine.json",
       "entrypoints": [
-        "engines/Python/Gumroad/gumgent.py",
+        "engines/Python/Gumroad/gumops_runner.py",
         "engines/Python/Gumroad/gumsdk.py",
-        "engines/Python/Gumroad/lms_sdk.py"
+        "engines/Python/Gumroad/working_memory/working_memory.py"
+      ],
+      "skills": [
+        "engines/Python/Gumroad/skills/gumroad-seller-ops.skill.md",
+        "engines/Python/Gumroad/skills/gumroad-analytics.skill.md",
+        "engines/Python/Gumroad/skills/gumroad-memory-ops.skill.md"
       ]
     },
     {
@@ -74,11 +80,16 @@
   ],
   "files": [
     "README.md",
+    "engines/Python/Gumroad/gumops.engine.json",
+    "engines/Python/Gumroad/gumops_runner.py",
     "engines/Python/Gumroad/gumgent.py",
     "engines/Python/Gumroad/gumsdk.py",
     "engines/Python/Gumroad/lms_sdk.py",
     "engines/Python/Gumroad/shopgent.py",
     "engines/Python/Gumroad/working_memory/working_memory.py",
+    "engines/Python/Gumroad/skills/gumroad-seller-ops.skill.md",
+    "engines/Python/Gumroad/skills/gumroad-analytics.skill.md",
+    "engines/Python/Gumroad/skills/gumroad-memory-ops.skill.md",
     "engines/Python/Facebook/fbgent.py",
     "engines/Python/Facebook/fb_api.py",
     "engines/Ruby/text_helper.rb",
