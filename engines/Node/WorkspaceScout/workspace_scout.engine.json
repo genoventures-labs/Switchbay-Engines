@@ -1,0 +1,69 @@
+{
+  "id": "workspace-scout",
+  "name": "Workspace Scout",
+  "description": "Local-first workspace introspection engine. Snapshots the file tree, detects the JS/TS/Bun/Node stack, inspects git state, and audits package.json dependencies — all without leaving the repo.",
+  "cwd": "/absolute/path/to/your-workspace",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Check that the WorkspaceScout engine is installed and ready.",
+      "command": "node engines/Node/WorkspaceScout/workspace_scout.mjs status",
+      "parameters": {}
+    },
+    {
+      "name": "snapshot",
+      "description": "Full workspace snapshot: file tree, git status, stack detection, and package.json summary in one call.",
+      "command": "node engines/Node/WorkspaceScout/workspace_scout.mjs snapshot --workspace {{workspace}} --depth {{depth}}",
+      "required": ["workspace"],
+      "parameters": {
+        "workspace": {
+          "type": "string",
+          "description": "Absolute path to the workspace root to snapshot."
+        },
+        "depth": {
+          "type": "string",
+          "description": "Max directory depth for the file tree scan. Defaults to 3."
+        }
+      }
+    },
+    {
+      "name": "git_status",
+      "description": "Return the current branch, dirty files, and recent commits for a workspace.",
+      "command": "node engines/Node/WorkspaceScout/workspace_scout.mjs git-status --workspace {{workspace}}",
+      "required": ["workspace"],
+      "parameters": {
+        "workspace": {
+          "type": "string",
+          "description": "Absolute path to the workspace root."
+        }
+      }
+    },
+    {
+      "name": "stack_detect",
+      "description": "Detect the technology stack in a workspace (Bun, Node, TypeScript, React, Vite, Next, Python, Ruby, Go, Rust).",
+      "command": "node engines/Node/WorkspaceScout/workspace_scout.mjs stack-detect --workspace {{workspace}}",
+      "required": ["workspace"],
+      "parameters": {
+        "workspace": {
+          "type": "string",
+          "description": "Absolute path to the workspace root to inspect."
+        }
+      }
+    },
+    {
+      "name": "deps_check",
+      "description": "Parse package.json and report dependency counts, available scripts, lockfile presence, and outdated packages.",
+      "command": "node engines/Node/WorkspaceScout/workspace_scout.mjs deps-check --workspace {{workspace}}",
+      "required": ["workspace"],
+      "parameters": {
+        "workspace": {
+          "type": "string",
+          "description": "Absolute path to the workspace root containing package.json."
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": []
+  }
+}

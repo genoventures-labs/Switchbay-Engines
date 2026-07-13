@@ -52,6 +52,15 @@
         "engines/Python/MacOS/macos_agent.py",
         "engines/Python/MacOS/finder_safe.py"
       ]
+    },
+    {
+      "id": "workspace-scout",
+      "displayName": "Workspace Scout",
+      "path": "engines/Node/WorkspaceScout/",
+      "type": "node",
+      "entrypoints": [
+        "engines/Node/WorkspaceScout/workspace_scout.mjs"
+      ]
     }
   ],
   "files": [
@@ -66,6 +75,8 @@
     "engines/Ruby/text_helper.rb",
     "engines/Python/FileHelper/file_helper.py",
     "engines/Python/MacOS/macos_agent.py",
-    "engines/Python/MacOS/finder_safe.py"
+    "engines/Python/MacOS/finder_safe.py",
+    "engines/Node/WorkspaceScout/workspace_scout.mjs",
+    "engines/Node/WorkspaceScout/workspace_scout.engine.json"
   ]
 }
