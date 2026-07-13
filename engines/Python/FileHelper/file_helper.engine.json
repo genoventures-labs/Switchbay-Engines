@@ -1,0 +1,121 @@
+{
+  "id": "file-helper",
+  "name": "File Helper",
+  "description": "Local-first file utilities for Switchbay. Safe, predictable file reads, directory listings, in-file search, and guarded find-and-replace — all sandboxed to a workspace root.",
+  "tools": [
+    {
+      "name": "list_directory",
+      "description": "List the contents of a directory. Returns name, path, is_dir, and size_bytes for each entry.",
+      "command": "python engines/Python/FileHelper/file_helper.py list-directory --path {{path}} --root {{root}} --recursive {{recursive}}",
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "Relative or absolute path to list. Defaults to '.'.",
+          "default": "."
+        },
+        "root": {
+          "type": "string",
+          "description": "Optional workspace root to sandbox paths within. Prevents escaping the root."
+        },
+        "recursive": {
+          "type": "boolean",
+          "description": "Whether to list all nested files recursively. Defaults to false.",
+          "default": false
+        }
+      }
+    },
+    {
+      "name": "read_file",
+      "description": "Read a file as text. Enforces a max size guard (default 200 KB).",
+      "command": "python engines/Python/FileHelper/file_helper.py read-file --path {{path}} --root {{root}} --max_bytes {{max_bytes}}",
+      "required": ["path"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "Path to the file to read."
+        },
+        "root": {
+          "type": "string",
+          "description": "Optional workspace root to sandbox the path within."
+        },
+        "max_bytes": {
+          "type": "integer",
+          "description": "Maximum file size in bytes to read. Defaults to 200000.",
+          "default": 200000
+        }
+      }
+    },
+    {
+      "name": "search_in_file",
+      "description": "Search for a string or regex pattern in a file and return matching lines with surrounding context.",
+      "command": "python engines/Python/FileHelper/file_helper.py search --path {{path}} --query {{query}} --root {{root}} --regex {{regex}} --context_lines {{context_lines}} --max_results {{max_results}}",
+      "required": ["path", "query"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "Path to the file to search."
+        },
+        "query": {
+          "type": "string",
+          "description": "The search string or regex pattern."
+        },
+        "root": {
+          "type": "string",
+          "description": "Optional workspace root to sandbox the path within."
+        },
+        "regex": {
+          "type": "boolean",
+          "description": "Whether to treat query as a regex pattern. Defaults to false.",
+          "default": false
+        },
+        "context_lines": {
+          "type": "integer",
+          "description": "Number of lines of context to include around each match. Defaults to 2.",
+          "default": 2
+        },
+        "max_results": {
+          "type": "integer",
+          "description": "Maximum number of results to return. Defaults to 50.",
+          "default": 50
+        }
+      }
+    },
+    {
+      "name": "replace_in_file",
+      "description": "Find and replace text inside a file in-place. WARNING: mutates the file.",
+      "command": "python engines/Python/FileHelper/file_helper.py replace --path {{path}} --search {{search}} --replace {{replace}} --root {{root}} --regex {{regex}} --count {{count}}",
+      "required": ["path", "search", "replace"],
+      "parameters": {
+        "path": {
+          "type": "string",
+          "description": "Path to the file to modify."
+        },
+        "search": {
+          "type": "string",
+          "description": "The text or regex pattern to find."
+        },
+        "replace": {
+          "type": "string",
+          "description": "The replacement text."
+        },
+        "root": {
+          "type": "string",
+          "description": "Optional workspace root to sandbox the path within."
+        },
+        "regex": {
+          "type": "boolean",
+          "description": "Whether to treat search as a regex pattern. Defaults to false.",
+          "default": false
+        },
+        "count": {
+          "type": "integer",
+          "description": "Number of occurrences to replace. 0 means replace all. Defaults to 0.",
+          "default": 0
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": ["replace_in_file"]
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "id": "macos-agent",
+  "name": "MacOS Agent",
+  "description": "Local macOS helper engine for Switchbay. Open apps, run scripts, read/write clipboard, capture screenshots, send notifications, manage defaults, and inspect files in Finder — all with JSON output for agent consumption.",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Verify the MacOS engine is available and ready.",
+      "command": "python engines/Python/MacOS/macos_agent.py status",
+      "parameters": {}
+    },
+    {
+      "name": "open_app",
+      "description": "Open an application, file, folder, or URL using the macOS 'open' command.",
+      "command": "python engines/Python/MacOS/macos_agent.py open-app --target {{target}}",
+      "required": ["target"],
+      "parameters": {
+        "target": {
+          "type": "string",
+          "description": "App name, file path, folder path, or URL to open."
+        }
+      }
+    },
+    {
+      "name": "run_script",
+      "description": "Run a local shell or AppleScript snippet via /bin/zsh.",
+      "command": "python engines/Python/MacOS/macos_agent.py run-script --script {{script}}",
+      "required": ["script"],
+      "parameters": {
+        "script": {
+          "type": "string",
+          "description": "The shell or AppleScript command string to execute."
+        }
+      }
+    },
+    {
+      "name": "defaults_get",
+      "description": "Read a macOS preference value from a defaults domain.",
+      "command": "python engines/Python/MacOS/macos_agent.py defaults-get --domain {{domain}} --key {{key}}",
+      "required": ["domain", "key"],
+      "parameters": {
+        "domain": {
+          "type": "string",
+          "description": "The defaults domain (e.g. 'com.apple.finder')."
+        },
+        "key": {
+          "type": "string",
+          "description": "The preference key to read."
+        }
+      }
+    },
+    {
+      "name": "defaults_set",
+      "description": "Write a macOS preference value to a defaults domain.",
+      "command": "python engines/Python/MacOS/macos_agent.py defaults-set --domain {{domain}} --key {{key}} --value {{value}}",
+      "required": ["domain", "key", "value"],
+      "parameters": {
+        "domain": {
+          "type": "string",
+          "description": "The defaults domain (e.g. 'com.apple.finder')."
+        },
+        "key": {
+          "type": "string",
+          "description": "The preference key to write."
+        },
+        "value": {
+          "type": "string",
+          "description": "The value to set."
+        }
+      }
+    },
+    {
+      "name": "notify",
+      "description": "Send a local macOS notification with a title and message.",
+      "command": "python engines/Python/MacOS/macos_agent.py notify --title {{title}} --message {{message}}",
+      "required": ["title", "message"],
+      "parameters": {
+        "title": {
+          "type": "string",
+          "description": "Notification title."
+        },
+        "message": {
+          "type": "string",
+          "description": "Notification body text."
+        }
+      }
+    },
+    {
+      "name": "clipboard_get",
+      "description": "Read the current contents of the macOS clipboard.",
+      "command": "python engines/Python/MacOS/macos_agent.py clipboard-get",
+      "parameters": {}
+    },
+    {
+      "name": "clipboard_set",
+      "description": "Write text to the macOS clipboard.",
+      "command": "python engines/Python/MacOS/macos_agent.py clipboard-set --text {{text}}",
+      "required": ["text"],
+      "parameters": {
+        "text": {
+          "type": "string",
+          "description": "The text to write to the clipboard."
+        }
+      }
+    },
+    {
+      "name": "screenshot",
+      "description": "Capture a screenshot and save it to a file path.",
+      "command": "python engines/Python/MacOS/macos_agent.py screenshot --output {{output}}",
+      "required": ["output"],
+      "parameters": {
+        "output": {
+          "type": "string",
+          "description": "The output file path for the screenshot (e.g. '/tmp/shot.png')."
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": ["run_script", "defaults_set", "screenshot"]
+  }
+}

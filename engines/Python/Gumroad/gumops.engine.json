@@ -1,0 +1,83 @@
+{
+  "id": "gumops",
+  "name": "GumOps",
+  "description": "Gumroad operations agent with working memory. Query products, manage sales, interact with the LMS SDK, and maintain a persistent local memory store — all via a local LLM.",
+  "tools": [
+    {
+      "name": "query",
+      "description": "Ask the GumOps agent a question. The agent uses working memory and available Gumroad tools to respond.",
+      "command": "python engines/Python/Gumroad/gumgent.py query {{text}}",
+      "required": ["text"],
+      "parameters": {
+        "text": {
+          "type": "string",
+          "description": "The question or instruction to send to the GumOps agent."
+        }
+      }
+    },
+    {
+      "name": "refresh_memory",
+      "description": "Refresh working memory with the latest data from Gumroad.",
+      "command": "python engines/Python/Gumroad/gumgent.py refresh-memory",
+      "parameters": {}
+    },
+    {
+      "name": "memory_list",
+      "description": "List all keys currently stored in working memory.",
+      "command": "python engines/Python/Gumroad/gumgent.py memory list",
+      "parameters": {}
+    },
+    {
+      "name": "memory_get",
+      "description": "Retrieve a working memory entry by key.",
+      "command": "python engines/Python/Gumroad/gumgent.py memory get {{key}}",
+      "required": ["key"],
+      "parameters": {
+        "key": {
+          "type": "string",
+          "description": "The memory key to retrieve."
+        }
+      }
+    },
+    {
+      "name": "memory_add",
+      "description": "Add or update a working memory entry.",
+      "command": "python engines/Python/Gumroad/gumgent.py memory add {{key}} {{value}}",
+      "required": ["key", "value"],
+      "parameters": {
+        "key": {
+          "type": "string",
+          "description": "The memory key to set."
+        },
+        "value": {
+          "type": "string",
+          "description": "The value to store (string or JSON)."
+        }
+      }
+    },
+    {
+      "name": "memory_find",
+      "description": "Search working memory entries by a query string.",
+      "command": "python engines/Python/Gumroad/gumgent.py memory find {{query}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Search query to match against memory keys, values, and metadata."
+        }
+      }
+    },
+    {
+      "name": "list_tools",
+      "description": "List all tools available to the GumOps agent.",
+      "command": "python engines/Python/Gumroad/gumgent.py tools list",
+      "parameters": {}
+    }
+  ],
+  "approval": {
+    "always": []
+  },
+  "env": {
+    "LMSTUDIO_API_BASE": "http://127.0.0.1:1234"
+  }
+}

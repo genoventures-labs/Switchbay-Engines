@@ -1,0 +1,67 @@
+{
+  "id": "facebook",
+  "name": "Facebook",
+  "description": "Facebook Graph API client and GraphQL wrapper. Fetch objects, edges, and page insights from the Facebook Graph API.",
+  "tools": [
+    {
+      "name": "get_object",
+      "description": "Get a Facebook Graph API object by ID. Returns fields specified in the fields parameter.",
+      "command": "python engines/Python/Facebook/fbgent.py get-object --id {{object_id}} --fields {{fields}}",
+      "required": ["object_id"],
+      "parameters": {
+        "object_id": {
+          "type": "string",
+          "description": "The Facebook object ID to retrieve (e.g. 'me' or a numeric page/user ID)."
+        },
+        "fields": {
+          "type": "string",
+          "description": "Comma-separated list of fields to request (e.g. 'id,name,email')."
+        }
+      }
+    },
+    {
+      "name": "get_edge",
+      "description": "Get an edge for a Facebook Graph API node (e.g. posts, photos, feed).",
+      "command": "python engines/Python/Facebook/fbgent.py get-edge --node_id {{node_id}} --edge {{edge}}",
+      "required": ["node_id", "edge"],
+      "parameters": {
+        "node_id": {
+          "type": "string",
+          "description": "The parent node ID."
+        },
+        "edge": {
+          "type": "string",
+          "description": "The edge name to retrieve (e.g. 'feed', 'photos', 'posts')."
+        }
+      }
+    },
+    {
+      "name": "get_page_insights",
+      "description": "Fetch page insights (impressions, engagement, etc.) for a Facebook Page via the GraphQL API.",
+      "command": "python engines/Python/Facebook/fbgent.py page-insights --page_id {{page_id}} --metrics {{metrics}} --period {{period}}",
+      "required": ["page_id"],
+      "parameters": {
+        "page_id": {
+          "type": "string",
+          "description": "The Facebook Page ID to query insights for."
+        },
+        "metrics": {
+          "type": "string",
+          "description": "Comma-separated metrics to retrieve (e.g. 'page_impressions,page_engaged_users'). Defaults to page_impressions,page_engaged_users."
+        },
+        "period": {
+          "type": "string",
+          "description": "Aggregation period: 'day', 'week', or 'days_28'. Defaults to 'day'.",
+          "default": "day",
+          "enum": ["day", "week", "days_28"]
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": []
+  },
+  "env": {
+    "FACEBOOK_ACCESS_TOKEN": ""
+  }
+}
