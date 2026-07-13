@@ -3,16 +3,15 @@
 Guarded web search and extraction tools for Switchbay.
 
 Tools:
-  - web_search   — Query a search API (Brave, Serper, or Tavily) and return ranked results.
-  - web_scrape   — Fetch a URL and extract structured content (text, tables, code blocks, links).
+  - web_search   — Search the web via DuckDuckGo (no API key required).
+  - web_scrape   — Fetch a URL and extract structured content (text, links, or all).
   - web_crawl    — Bounded domain crawl: follow links N levels deep and return page summaries.
 
-Requires one of the following env vars set (checked in order):
-  BRAVE_API_KEY, SERPER_API_KEY, TAVILY_API_KEY
+No API keys required. DuckDuckGo HTML scraping is used for web_search.
 
 Usage (called by Switchbay via CLI):
   python engines/Python/WebSearch/web_search.py web_search --query "..." [--count 10]
-  python engines/Python/WebSearch/web_search.py web_scrape --url "https://..." [--extract text|table|code|links]
+  python engines/Python/WebSearch/web_search.py web_scrape --url "https://..." [--extract text|links|all]
   python engines/Python/WebSearch/web_search.py web_crawl  --url "https://..." [--depth 2] [--max_pages 20]
 """
 
@@ -159,55 +158,96 @@ def _extract_html(html: bytes, base_url: str = "") -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Search backends
+# DuckDuckGo Lite search backend (no API key required)
 # ---------------------------------------------------------------------------
 
-def _search_brave(query: str, count: int, api_key: str) -> List[Dict[str, Any]]:
-    url = f"https://api.search.brave.com/res/v1/web/search?q={urllib.parse.quote(query)}&count={count}"
-    raw = _http_get(url, headers={"Accept": "application/json", "X-Subscription-Token": api_key})
-    data = json.loads(raw)
-    results = []
-    for item in data.get("web", {}).get("results", []):
-        results.append({
-            "title": item.get("title", ""),
-            "url": item.get("url", ""),
-            "description": item.get("description", ""),
-            "source": "brave",
-        })
-    return results
+class _DDGLiteParser(HTMLParser):
+    """Parse DuckDuckGo Lite POST results into title/url/description triples.
+
+    DDG Lite HTML structure:
+      <a class="result-link" href="URL">Title</a>
+      <td class="result-snippet">Description text</td>
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.results: List[Dict[str, str]] = []
+        self._in_link = False
+        self._in_snippet = False
+        self._pending_title = ""
+        self._pending_url = ""
+        self._pending_snippet = ""
+
+    def handle_starttag(self, tag, attrs):
+        attr_dict = dict(attrs)
+        classes = attr_dict.get("class", "")
+
+        if tag == "a" and "result-link" in classes:
+            self._pending_url = attr_dict.get("href", "")
+            self._pending_title = ""
+            self._in_link = True
+
+        if tag == "td" and "result-snippet" in classes:
+            self._pending_snippet = ""
+            self._in_snippet = True
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._in_link:
+            self._in_link = False
+            # Don't commit yet — wait for snippet
+
+        if tag == "td" and self._in_snippet:
+            self._in_snippet = False
+            # Commit result when snippet closes
+            if self._pending_url and self._pending_title:
+                self.results.append({
+                    "title": self._pending_title.strip(),
+                    "url": self._pending_url.strip(),
+                    "description": self._pending_snippet.strip(),
+                })
+                self._pending_title = ""
+                self._pending_url = ""
+                self._pending_snippet = ""
+
+    def handle_data(self, data):
+        stripped = data.strip()
+        if not stripped:
+            return
+        if self._in_link:
+            self._pending_title += stripped
+        elif self._in_snippet:
+            self._pending_snippet += " " + stripped
 
 
-def _search_serper(query: str, count: int, api_key: str) -> List[Dict[str, Any]]:
-    raw = _http_post(
-        "https://google.serper.dev/search",
-        {"q": query, "num": count},
-        headers={"X-API-KEY": api_key},
+def _search_ddg(query: str, count: int) -> List[Dict[str, Any]]:
+    """Search via DuckDuckGo Lite (POST). No API key needed."""
+    data = urllib.parse.urlencode({"q": query}).encode("utf-8")
+    req = Request(
+        "https://lite.duckduckgo.com/lite/",
+        data=data,
+        headers={
+            "User-Agent": USER_AGENT,
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Referer": "https://lite.duckduckgo.com/lite/",
+        },
+        method="POST",
     )
-    data = json.loads(raw)
-    results = []
-    for item in data.get("organic", []):
-        results.append({
-            "title": item.get("title", ""),
-            "url": item.get("link", ""),
-            "description": item.get("snippet", ""),
-            "source": "serper",
-        })
-    return results
+    with urlopen(req, timeout=15, context=_SSL_CTX) as resp:
+        raw = resp.read()
 
+    html = raw.decode("utf-8", errors="replace")
+    parser = _DDGLiteParser()
+    parser.feed(html)
 
-def _search_tavily(query: str, count: int, api_key: str) -> List[Dict[str, Any]]:
-    raw = _http_post(
-        "https://api.tavily.com/search",
-        {"api_key": api_key, "query": query, "max_results": count},
-    )
-    data = json.loads(raw)
     results = []
-    for item in data.get("results", []):
+    for item in parser.results[:count]:
         results.append({
-            "title": item.get("title", ""),
-            "url": item.get("url", ""),
-            "description": item.get("content", ""),
-            "source": "tavily",
+            "title": item.get("title", "").strip(),
+            "url": item.get("url", "").strip(),
+            "description": item.get("description", "").strip(),
+            "source": "duckduckgo",
         })
     return results
 
@@ -217,14 +257,12 @@ def _search_tavily(query: str, count: int, api_key: str) -> List[Dict[str, Any]]
 # ---------------------------------------------------------------------------
 
 def web_search(query: str, count: int = 10) -> Dict[str, Any]:
-    """Search the web using the first available API key.
-
-    Checks: BRAVE_API_KEY → SERPER_API_KEY → TAVILY_API_KEY.
+    """Search the web using DuckDuckGo (no API key required).
 
     Returns:
         {
             "query": str,
-            "provider": str,
+            "provider": "duckduckgo",
             "count": int,
             "results": [{"title", "url", "description", "source"}, ...]
         }
@@ -233,26 +271,9 @@ def web_search(query: str, count: int = 10) -> Dict[str, Any]:
         raise ValueError("query must not be empty.")
 
     count = max(1, min(count, 20))
+    results = _search_ddg(query, count)
 
-    brave_key = os.environ.get("BRAVE_API_KEY")
-    serper_key = os.environ.get("SERPER_API_KEY")
-    tavily_key = os.environ.get("TAVILY_API_KEY")
-
-    if brave_key:
-        results = _search_brave(query, count, brave_key)
-        provider = "brave"
-    elif serper_key:
-        results = _search_serper(query, count, serper_key)
-        provider = "serper"
-    elif tavily_key:
-        results = _search_tavily(query, count, tavily_key)
-        provider = "tavily"
-    else:
-        raise EnvironmentError(
-            "No search API key found. Set one of: BRAVE_API_KEY, SERPER_API_KEY, or TAVILY_API_KEY."
-        )
-
-    return {"query": query, "provider": provider, "count": len(results), "results": results}
+    return {"query": query, "provider": "duckduckgo", "count": len(results), "results": results}
 
 
 def web_scrape(url: str, extract: str = "text") -> Dict[str, Any]:

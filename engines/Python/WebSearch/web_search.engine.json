@@ -1,11 +1,11 @@
 {
   "id": "web-search",
   "name": "Web Search Engine",
-  "description": "Guarded web search, scrape, and crawl tools. Requires one API key env var: BRAVE_API_KEY, SERPER_API_KEY, or TAVILY_API_KEY.",
+  "description": "Guarded web search, scrape, and crawl tools. No API key required — uses DuckDuckGo HTML scraping for search.",
   "tools": [
     {
       "name": "web_search",
-      "description": "Search the web using the first available provider (Brave → Serper → Tavily). Returns ranked results with titles, URLs, and descriptions. Requires BRAVE_API_KEY, SERPER_API_KEY, or TAVILY_API_KEY.",
+      "description": "Search the web using DuckDuckGo (no API key required). Returns ranked results with titles, URLs, and descriptions.",
       "command": "python engines/Python/WebSearch/web_search.py web_search --query {{query}} --count {{count}}",
       "required": ["query"],
       "parameters": {
@@ -69,7 +69,5 @@
   "approval": {
     "always": ["web_crawl"]
   },
-  "env": {
-    "required_one_of": ["BRAVE_API_KEY", "SERPER_API_KEY", "TAVILY_API_KEY"]
-  }
+  "env": {}
 }
