@@ -1,0 +1,75 @@
+{
+  "id": "web-search",
+  "name": "Web Search Engine",
+  "description": "Guarded web search, scrape, and crawl tools. Requires one API key env var: BRAVE_API_KEY, SERPER_API_KEY, or TAVILY_API_KEY.",
+  "tools": [
+    {
+      "name": "web_search",
+      "description": "Search the web using the first available provider (Brave → Serper → Tavily). Returns ranked results with titles, URLs, and descriptions. Requires BRAVE_API_KEY, SERPER_API_KEY, or TAVILY_API_KEY.",
+      "command": "python engines/Python/WebSearch/web_search.py web_search --query {{query}} --count {{count}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "The search query string."
+        },
+        "count": {
+          "type": "integer",
+          "description": "Number of results to return. Default 10, max 20.",
+          "default": 10
+        }
+      }
+    },
+    {
+      "name": "web_scrape",
+      "description": "Fetch an explicit public URL and extract structured content: readable text, links, or both.",
+      "command": "python engines/Python/WebSearch/web_search.py web_scrape --url {{url}} --extract {{extract}}",
+      "required": ["url"],
+      "parameters": {
+        "url": {
+          "type": "string",
+          "description": "The explicit public URL to fetch."
+        },
+        "extract": {
+          "type": "string",
+          "description": "What to extract: 'text', 'links', or 'all'. Defaults to 'text'.",
+          "default": "text",
+          "enum": ["text", "links", "all"]
+        }
+      }
+    },
+    {
+      "name": "web_crawl",
+      "description": "Bounded domain crawl from a seed URL. Follows links up to `depth` levels deep, stays within the same domain, returns page summaries. Max depth 3, max pages 20.",
+      "command": "python engines/Python/WebSearch/web_search.py web_crawl --url {{url}} --depth {{depth}} --max_pages {{max_pages}} --delay {{delay}}",
+      "required": ["url"],
+      "parameters": {
+        "url": {
+          "type": "string",
+          "description": "The seed URL to start crawling from."
+        },
+        "depth": {
+          "type": "integer",
+          "description": "How many link-hops deep to follow. Max 3. Defaults to 1.",
+          "default": 1
+        },
+        "max_pages": {
+          "type": "integer",
+          "description": "Hard cap on total pages fetched. Max 20. Defaults to 10.",
+          "default": 10
+        },
+        "delay": {
+          "type": "number",
+          "description": "Seconds to wait between requests to avoid rate-limiting. Defaults to 0.5.",
+          "default": 0.5
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": ["web_crawl"]
+  },
+  "env": {
+    "required_one_of": ["BRAVE_API_KEY", "SERPER_API_KEY", "TAVILY_API_KEY"]
+  }
+}
