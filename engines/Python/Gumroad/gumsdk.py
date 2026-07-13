@@ -447,6 +447,91 @@ class GumroadSDK:
 
 # Additional utility methods for user and profile management.
 
+    def health_check(self) -> Dict[str, Any]:
+        """Ping the Gumroad API and return a structured health report.
+
+        Checks:
+        - Token presence (env or init)
+        - /user endpoint reachability and response time
+        - /products endpoint reachability and response time
+        - Summary of what is reachable
+
+        Returns a dict with keys: token_present, endpoints, healthy, latency_ms, errors.
+        """
+        import time as _time
+
+        report: Dict[str, Any] = {
+            "token_present": bool(self.access_token),
+            "token_prefix": (self.access_token[:6] + "…") if self.access_token else None,
+            "api_base": self.api_base,
+            "endpoints": {},
+            "healthy": False,
+            "errors": [],
+        }
+
+        if not self.access_token:
+            report["errors"].append("GUMROAD_ACCESS_TOKEN is missing or empty.")
+            return report
+
+        checks = [
+            ("user", "/user"),
+            ("products", "/products"),
+        ]
+
+        all_ok = True
+        for label, path in checks:
+            t0 = _time.monotonic()
+            try:
+                resp = self.session.get(self._url(path), timeout=10)
+                elapsed_ms = round((_time.monotonic() - t0) * 1000)
+                if resp.ok:
+                    try:
+                        data = resp.json()
+                    except ValueError:
+                        data = {}
+                    endpoint_info: Dict[str, Any] = {
+                        "ok": True,
+                        "status_code": resp.status_code,
+                        "latency_ms": elapsed_ms,
+                    }
+                    # Attach lightweight metadata per endpoint
+                    if label == "user":
+                        u = data.get("user", {})
+                        endpoint_info["seller_name"] = u.get("name")
+                        endpoint_info["seller_email"] = u.get("email")
+                    elif label == "products":
+                        products = data.get("products") or []
+                        endpoint_info["product_count"] = len(products)
+                else:
+                    all_ok = False
+                    try:
+                        body = resp.json()
+                        msg = body.get("message", resp.text)
+                    except ValueError:
+                        msg = resp.text
+                    endpoint_info = {
+                        "ok": False,
+                        "status_code": resp.status_code,
+                        "latency_ms": elapsed_ms,
+                        "error": msg,
+                    }
+                    report["errors"].append(f"{label}: HTTP {resp.status_code} — {msg}")
+            except Exception as exc:
+                elapsed_ms = round((_time.monotonic() - t0) * 1000)
+                all_ok = False
+                endpoint_info = {
+                    "ok": False,
+                    "status_code": None,
+                    "latency_ms": elapsed_ms,
+                    "error": str(exc),
+                }
+                report["errors"].append(f"{label}: {exc}")
+
+            report["endpoints"][label] = endpoint_info
+
+        report["healthy"] = all_ok
+        return report
+
     def update_user_profile(self, profile_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update the user's profile with the provided data."""
         return self._request("POST", "/user/update", json=profile_data)

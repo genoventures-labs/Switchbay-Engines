@@ -8,6 +8,7 @@ Usage:
     python gumops_runner.py <subcommand> [--arg value ...]
 
 Subcommands:
+    health_check
     account_info
     list_products       [--page INT]
     get_product         --product_id STR
@@ -46,7 +47,7 @@ _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
-from gumsdk import GumroadSDK  # noqa: E402
+from gumsdk import GumroadSDK, DEFAULT_API_BASE  # noqa: E402
 
 
 def _sdk() -> GumroadSDK:
@@ -200,6 +201,25 @@ def cmd_refund_preview(args) -> None:
         _err(exc)
 
 
+def cmd_health_check(_args) -> None:
+    try:
+        sdk = _sdk()
+        report = sdk.health_check()
+        _ok(report)
+    except ValueError as exc:
+        # Token missing — GumroadSDK raises ValueError before we can call health_check
+        _ok({
+            "token_present": False,
+            "token_prefix": None,
+            "api_base": DEFAULT_API_BASE,
+            "endpoints": {},
+            "healthy": False,
+            "errors": [str(exc)],
+        })
+    except Exception as exc:
+        _err(exc)
+
+
 def cmd_refund_sale(args) -> None:
     try:
         amount = args.amount if args.amount is not None else None
@@ -305,6 +325,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
+    # health_check
+    sub.add_parser("health_check")
+
     # account_info
     sub.add_parser("account_info")
 
@@ -387,6 +410,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 DISPATCH = {
+    "health_check": cmd_health_check,
     "account_info": cmd_account_info,
     "list_products": cmd_list_products,
     "get_product": cmd_get_product,

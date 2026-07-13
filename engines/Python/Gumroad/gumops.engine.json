@@ -5,6 +5,12 @@
   "cwd": "/Users/cass/Documents/GitHub/Switchbay Engines",
   "tools": [
     {
+      "name": "gum_health_check",
+      "description": "Ping the Gumroad API and return a health report. Checks token presence, /user reachability, /products reachability, and latency for each endpoint. Use this first when the API connection is unknown or broken.",
+      "command": "python engines/Python/Gumroad/gumops_runner.py health_check",
+      "parameters": {}
+    },
+    {
       "name": "gum_account_info",
       "description": "Return account info for the configured Gumroad seller: name, email, product count, and sales count.",
       "command": "python engines/Python/Gumroad/gumops_runner.py account_info",
