@@ -128,6 +128,13 @@ def cmd_sales_summary(_args) -> None:
         _err(exc)
 
 
+def cmd_sales_range(args) -> None:
+    try:
+        _ok(_sdk().get_sales_summary_for_range(args.start, args.end))
+    except Exception as exc:
+        _err(exc)
+
+
 def cmd_sales_by_product(_args) -> None:
     try:
         _ok(_sdk().insight_sales_by_product())
@@ -346,6 +353,11 @@ def build_parser() -> argparse.ArgumentParser:
     # sales_summary
     sub.add_parser("sales_summary")
 
+    # sales_range
+    p = sub.add_parser("sales_range")
+    p.add_argument("--start", required=True, help="Inclusive YYYY-MM-DD start date")
+    p.add_argument("--end", required=True, help="Inclusive YYYY-MM-DD end date")
+
     # sales_by_product
     sub.add_parser("sales_by_product")
 
@@ -416,6 +428,7 @@ DISPATCH = {
     "get_product": cmd_get_product,
     "find_product": cmd_find_product,
     "sales_summary": cmd_sales_summary,
+    "sales_range": cmd_sales_range,
     "sales_by_product": cmd_sales_by_product,
     "sales_by_month": cmd_sales_by_month,
     "top_products": cmd_top_products,

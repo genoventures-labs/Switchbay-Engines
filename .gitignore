@@ -32,6 +32,7 @@ coverage/
 .env
 .env.local
 .env.*.local
+.venv/
 
 # IDEs and editors
 .vscode/

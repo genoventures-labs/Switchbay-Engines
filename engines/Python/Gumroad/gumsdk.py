@@ -9,6 +9,8 @@ Features:
 - Preview and execute refunds, and find objects by name, email, or ID.
 
 """
+from datetime import date
+from decimal import Decimal, InvalidOperation
 from typing import Any, Dict, List, Optional
 import csv
 import json
@@ -175,23 +177,71 @@ class GumroadSDK:
         return matching_sales
     
     def get_sales_summary(self) -> Dict[str, Any]:
-        """Get a summary of sales, including total sales, total revenue, and total refunds."""
-        all_sales = self.list_all_sales()
-        all_refunds = self.list_all_refunds()
-        total_sales = len(all_sales)
-        total_revenue = sum(float(sale.get("price", 0)) for sale in all_sales)
-        total_refunds = len(all_refunds)
-        return {
-            "total_sales": total_sales,
-            "total_revenue": total_revenue,
-            "total_refunds": total_refunds,
+        """Return an all-time gross-sales summary. Gumroad price values are cents."""
+        return self._summarize_sales(self.list_all_sales(), scope="all_time")
+
+    @staticmethod
+    def _sale_date(sale: Dict[str, Any]) -> Optional[date]:
+        raw = str(sale.get("created_at") or "").split("T", 1)[0]
+        try:
+            return date.fromisoformat(raw)
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _sale_amount(sale: Dict[str, Any]) -> Decimal:
+        """Gumroad sale.price is an integer amount in the sale currency's cents."""
+        try:
+            return (Decimal(str(sale.get("price", 0))) / Decimal("100")).quantize(Decimal("0.01"))
+        except (InvalidOperation, ValueError):
+            return Decimal("0.00")
+
+    def _summarize_sales(
+        self,
+        sales: List[Dict[str, Any]],
+        *,
+        scope: str,
+        start: Optional[date] = None,
+        end: Optional[date] = None,
+    ) -> Dict[str, Any]:
+        revenue_by_currency: Dict[str, Decimal] = {}
+        for sale in sales:
+            currency = str(sale.get("currency") or "USD").upper()
+            revenue_by_currency[currency] = revenue_by_currency.get(currency, Decimal("0.00")) + self._sale_amount(sale)
+
+        normalized_revenue = {currency: float(amount) for currency, amount in revenue_by_currency.items()}
+        result: Dict[str, Any] = {
+            "scope": scope,
+            "total_sales": len(sales),
+            "revenue_by_currency": normalized_revenue,
+            "refunds": {"available": False, "note": "Gumroad refunds endpoint is not available to this engine; gross sales do not subtract refunds."},
         }
+        if start and end:
+            result["date_range"] = {"start": start.isoformat(), "end": end.isoformat(), "inclusive": True}
+        if len(normalized_revenue) == 1:
+            result["total_revenue"] = next(iter(normalized_revenue.values()))
+            result["currency"] = next(iter(normalized_revenue.keys()))
+        else:
+            result["total_revenue"] = None
+            result["note"] = "Multiple currencies present; use revenue_by_currency rather than combining them."
+        return result
+
+    def get_sales_summary_for_range(self, start: str, end: str) -> Dict[str, Any]:
+        """Return gross sales whose created_at date falls in the inclusive ISO date range."""
+        try:
+            start_date, end_date = date.fromisoformat(start), date.fromisoformat(end)
+        except ValueError as exc:
+            raise ValueError("start and end must use YYYY-MM-DD.") from exc
+        if end_date < start_date:
+            raise ValueError("end must be on or after start.")
+        sales = [sale for sale in self.list_all_sales() if (sale_date := self._sale_date(sale)) and start_date <= sale_date <= end_date]
+        return self._summarize_sales(sales, scope="date_range", start=start_date, end=end_date)
     
     def get_product_sales_summary(self, product_id: str) -> Dict[str, Any]:
         """Get a summary of sales for a specific product, including total sales and total revenue."""
         all_sales = self.list_all_product_sales(product_id=product_id)
         total_sales = len(all_sales)
-        total_revenue = sum(float(sale.get("price", 0)) for sale in all_sales)
+        total_revenue = sum(self._sale_amount(sale) for sale in all_sales)
         return {
             "product_id": product_id,
             "total_sales": total_sales,
@@ -206,7 +256,7 @@ class GumroadSDK:
             date_str = sale.get("created_at", "").split("T")[0]  # Assuming ISO format
             if date_str:
                 sales_by_date.setdefault(date_str, []).append(sale)
-        summary = {date: {"count": len(sales), "total_revenue": sum(float(sale.get("price", 0)) for sale in sales)} for date, sales in sales_by_date.items()}
+        summary = {date: {"count": len(sales), "total_revenue": float(sum((self._sale_amount(sale) for sale in sales), Decimal("0.00")))} for date, sales in sales_by_date.items()}
         return summary
     
     def insight_sales_by_product(self) -> Dict[str, Any]:
@@ -217,7 +267,7 @@ class GumroadSDK:
             product_id = sale.get("product_id")
             if product_id:
                 sales_by_product.setdefault(product_id, []).append(sale)
-        summary = {product_id: {"count": len(sales), "total_revenue": sum(float(sale.get("price", 0)) for sale in sales)} for product_id, sales in sales_by_product.items()}
+        summary = {product_id: {"count": len(sales), "total_revenue": float(sum((self._sale_amount(sale) for sale in sales), Decimal("0.00")))} for product_id, sales in sales_by_product.items()}
         return summary
 
     def monthly_sales_summary(self) -> Dict[str, Any]:
@@ -229,7 +279,7 @@ class GumroadSDK:
             if date_str:
                 month_str = date_str[:7]  # YYYY-MM
                 sales_by_month.setdefault(month_str, []).append(sale)
-        summary = {month: {"count": len(sales), "total_revenue": sum(float(sale.get("price", 0)) for sale in sales)} for month, sales in sales_by_month.items()}
+        summary = {month: {"count": len(sales), "total_revenue": float(sum((self._sale_amount(sale) for sale in sales), Decimal("0.00")))} for month, sales in sales_by_month.items()}
         return summary
     
     def top_selling_products(self, top_n: int = 5) -> List[Dict[str, Any]]:
@@ -238,11 +288,11 @@ class GumroadSDK:
         sales_by_product: Dict[str, float] = {}
         for sale in all_sales:
             product_id = sale.get("product_id")
-            price = float(sale.get("price", 0))
+            price = self._sale_amount(sale)
             if product_id:
                 sales_by_product[product_id] = sales_by_product.get(product_id, 0) + price
         sorted_products = sorted(sales_by_product.items(), key=lambda x: x[1], reverse=True)
-        return [{"product_id": product_id, "total_revenue": revenue} for product_id, revenue in sorted_products[:top_n]]
+        return [{"product_id": product_id, "total_revenue": float(revenue)} for product_id, revenue in sorted_products[:top_n]]
 
     def top_customers(self, top_n: int = 5) -> List[Dict[str, Any]]:
         """Get the top N customers by total spend."""
@@ -250,11 +300,11 @@ class GumroadSDK:
         spend_by_customer: Dict[str, float] = {}
         for sale in all_sales:
             email = sale.get("email")
-            price = float(sale.get("price", 0))
+            price = self._sale_amount(sale)
             if email:
                 spend_by_customer[email] = spend_by_customer.get(email, 0) + price
         sorted_customers = sorted(spend_by_customer.items(), key=lambda x: x[1], reverse=True)
-        return [{"email": email, "total_spent": spent} for email, spent in sorted_customers[:top_n]]
+        return [{"email": email, "total_spent": float(spent)} for email, spent in sorted_customers[:top_n]]
 
     def find_sale_by_id(self, sale_id: str) -> Optional[Dict[str, Any]]:
         """Find a sale by its ID. Returns the sale dict or None if not found."""
@@ -315,7 +365,7 @@ class GumroadSDK:
     def generate_customer_report(self, email: str) -> Dict[str, Any]:
         """Generate a report for a specific customer including their sales and total spend."""
         sales = self.find_sale_by_email(email)
-        total_spent = sum(float(sale.get("price", 0)) for sale in sales)
+        total_spent = float(sum((self._sale_amount(sale) for sale in sales), Decimal("0.00")))
         return {
             "customer_email": email,
             "total_spent": total_spent,

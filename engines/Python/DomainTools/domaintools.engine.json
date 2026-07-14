@@ -1,0 +1,31 @@
+{
+  "id": "domaintools",
+  "name": "Domain Tools",
+  "description": "Domain tools for Switchbay. Check if a domain is available, check if a domain is a valid TLD, and more.",
+  "tools": [
+    {
+      "name": "check_domain",
+      "description": "Validate a domain name and check whether its TLD is recognized. Availability lookup is not yet implemented.",
+      "command": "python3 engines/Python/DomainTools/simple_check.py --domain \"{{domain}}\"",
+      "parameters": {
+        "domain": {
+          "type": "string",
+          "description": "The domain to check, e.g. example.com",
+          "required": true
+        }
+      }
+    },
+    {
+      "name": "check_tld",
+      "description": "Check whether the TLD of a given domain is recognized (e.g. .com, .io, .dev).",
+      "command": "python3 engines/Python/DomainTools/tld_check.py --domain \"{{domain}}\"",
+      "parameters": {
+        "domain": {
+          "type": "string",
+          "description": "The domain whose TLD to check, e.g. example.io",
+          "required": true
+        }
+      }
+    }
+  ]
+}
