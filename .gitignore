@@ -61,3 +61,4 @@ pnpm-lock.yaml
 # Optional npm cache directory
 .npm
 /.switchbay
+/Users/cass
