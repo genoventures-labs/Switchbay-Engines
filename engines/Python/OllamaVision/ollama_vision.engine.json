@@ -1,0 +1,84 @@
+{
+  "id": "ollama-vision",
+  "name": "Ollama Vision",
+  "description": "Local Ollama vision engine for Switchbay. Describe images, generate LoRA training captions, and produce person-focused descriptions using local Qwen VL models — all with JSON output for agent consumption.",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Check Ollama connectivity and list available vision models.",
+      "command": "python engines/Python/OllamaVision/ollama_vision.py status",
+      "parameters": {}
+    },
+    {
+      "name": "list_models",
+      "description": "List all models currently available in the local Ollama instance.",
+      "command": "python engines/Python/OllamaVision/ollama_vision.py list-models",
+      "parameters": {}
+    },
+    {
+      "name": "describe",
+      "description": "Generate a detailed general description of an image using a local Ollama VL model.",
+      "command": "python engines/Python/OllamaVision/ollama_vision.py describe --model {{model}} --image-path {{image_path}}",
+      "required": ["model", "image_path"],
+      "parameters": {
+        "model": {
+          "type": "string",
+          "description": "Ollama VL model name (e.g. qwen2.5vl:4b, qwen2.5vl:2b)."
+        },
+        "image_path": {
+          "type": "string",
+          "description": "Absolute or relative path to the image file on disk."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Optional custom prompt to guide the description."
+        }
+      }
+    },
+    {
+      "name": "describe_person",
+      "description": "Generate a person-focused description of a photo for LoRA training caption use. Focuses on face, hair, skin tone, build, and features. Ignores background. Optionally refines the output with a second text model pass.",
+      "command": "python engines/Python/OllamaVision/ollama_vision.py describe-person --model {{model}} --image-path {{image_path}}",
+      "required": ["model", "image_path"],
+      "parameters": {
+        "model": {
+          "type": "string",
+          "description": "Ollama VL model name (e.g. qwen2.5vl:4b, qwen2.5vl:2b)."
+        },
+        "image_path": {
+          "type": "string",
+          "description": "Absolute or relative path to the image file on disk."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Optional subject hint to anchor the model (e.g. 'a woman in her 30s')."
+        },
+        "refine_model": {
+          "type": "string",
+          "description": "Optional text model for a second refinement pass (e.g. qwen2.5:3b). Produces a cleaner training caption."
+        }
+      }
+    },
+    {
+      "name": "caption",
+      "description": "Generate a short image caption in one of three styles: training (LoRA/dataset), alttext (accessibility), or tweet (social).",
+      "command": "python engines/Python/OllamaVision/ollama_vision.py caption --model {{model}} --image-path {{image_path}} --style {{style}}",
+      "required": ["model", "image_path", "style"],
+      "parameters": {
+        "model": {
+          "type": "string",
+          "description": "Ollama VL model name (e.g. qwen2.5vl:4b, qwen2.5vl:2b)."
+        },
+        "image_path": {
+          "type": "string",
+          "description": "Absolute or relative path to the image file on disk."
+        },
+        "style": {
+          "type": "string",
+          "description": "Caption style: 'training', 'alttext', or 'tweet'.",
+          "enum": ["training", "alttext", "tweet"]
+        }
+      }
+    }
+  ]
+}
