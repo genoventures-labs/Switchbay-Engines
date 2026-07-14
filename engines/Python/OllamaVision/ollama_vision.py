@@ -63,7 +63,7 @@ def cmd_status(_args):
     try:
         data = ollama_get("/api/tags")
         models = [m["name"] for m in data.get("models", [])]
-        vl_models = [m for m in models if "vl" in m.lower() or "vision" in m.lower()]
+        vl_models = [m for m in models if any(k in m.lower() for k in ("vl", "vision", "qwen3.5", "qwen2.5vl"))]
         return result(
             True, "status",
             message="Ollama Vision engine ready",
@@ -79,7 +79,7 @@ def cmd_list_models(_args):
     try:
         data = ollama_get("/api/tags")
         models = [m["name"] for m in data.get("models", [])]
-        vl_models = [m for m in models if "vl" in m.lower() or "vision" in m.lower()]
+        vl_models = [m for m in models if any(k in m.lower() for k in ("vl", "vision", "qwen3.5", "qwen2.5vl"))]
         return result(True, "list_models", models=models, vision_models=vl_models, count=len(models))
     except Exception as e:
         return result(False, "list_models", message=str(e))
@@ -260,14 +260,14 @@ def main():
 
     # describe
     p_desc = sub.add_parser("describe", help="General image description")
-    p_desc.add_argument("--model", default="qwen2.5vl:7b", help="Ollama VL model name")
+    p_desc.add_argument("--model", default="qwen3.5:2b", help="Ollama VL model name")
     p_desc.add_argument("--image-path", help="Local path to image file")
     p_desc.add_argument("--image-base64", help="Base64-encoded image string")
     p_desc.add_argument("--prompt", help="Custom prompt (optional)")
 
     # describe-person
     p_person = sub.add_parser("describe-person", help="Person-focused description for LoRA training")
-    p_person.add_argument("--model", default="qwen2.5vl:7b", help="Ollama VL model name")
+    p_person.add_argument("--model", default="qwen3.5:2b", help="Ollama VL model name")
     p_person.add_argument("--image-path", help="Local path to image file")
     p_person.add_argument("--image-base64", help="Base64-encoded image string")
     p_person.add_argument("--subject", help="Optional subject hint (e.g. 'a woman in her 30s')")
@@ -275,7 +275,7 @@ def main():
 
     # caption
     p_cap = sub.add_parser("caption", help="Short caption for training, alt-text, or social")
-    p_cap.add_argument("--model", default="qwen2.5vl:7b", help="Ollama VL model name")
+    p_cap.add_argument("--model", default="qwen3.5:2b", help="Ollama VL model name")
     p_cap.add_argument("--image-path", help="Local path to image file")
     p_cap.add_argument("--image-base64", help="Base64-encoded image string")
     p_cap.add_argument("--style", choices=["training", "alttext", "tweet"], default="training")

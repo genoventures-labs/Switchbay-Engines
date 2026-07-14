@@ -6,19 +6,19 @@
     {
       "name": "status",
       "description": "Check Ollama connectivity and list available vision models.",
-      "command": "python engines/Python/OllamaVision/ollama_vision.py status",
+      "command": "python3 engines/Python/OllamaVision/ollama_vision.py status",
       "parameters": {}
     },
     {
       "name": "list_models",
       "description": "List all models currently available in the local Ollama instance.",
-      "command": "python engines/Python/OllamaVision/ollama_vision.py list-models",
+      "command": "python3 engines/Python/OllamaVision/ollama_vision.py list-models",
       "parameters": {}
     },
     {
       "name": "describe",
       "description": "Generate a detailed general description of an image using a local Ollama VL model.",
-      "command": "python engines/Python/OllamaVision/ollama_vision.py describe --model {{model}} --image-path {{image_path}}",
+      "command": "python3 engines/Python/OllamaVision/ollama_vision.py describe --model {{model}} --image-path {{image_path}}",
       "required": ["model", "image_path"],
       "parameters": {
         "model": {
@@ -38,7 +38,7 @@
     {
       "name": "describe_person",
       "description": "Generate a person-focused description of a photo for LoRA training caption use. Focuses on face, hair, skin tone, build, and features. Ignores background. Optionally refines the output with a second text model pass.",
-      "command": "python engines/Python/OllamaVision/ollama_vision.py describe-person --model {{model}} --image-path {{image_path}}",
+      "command": "python3 engines/Python/OllamaVision/ollama_vision.py describe-person --model {{model}} --image-path {{image_path}}",
       "required": ["model", "image_path"],
       "parameters": {
         "model": {
@@ -62,7 +62,7 @@
     {
       "name": "caption",
       "description": "Generate a short image caption in one of three styles: training (LoRA/dataset), alttext (accessibility), or tweet (social).",
-      "command": "python engines/Python/OllamaVision/ollama_vision.py caption --model {{model}} --image-path {{image_path}} --style {{style}}",
+      "command": "python3 engines/Python/OllamaVision/ollama_vision.py caption --model {{model}} --image-path {{image_path}} --style {{style}}",
       "required": ["model", "image_path", "style"],
       "parameters": {
         "model": {
