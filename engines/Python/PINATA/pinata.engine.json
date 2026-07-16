@@ -1,0 +1,219 @@
+{
+  "id": "pinata",
+  "name": "PINATA Workbench",
+  "description": "Reddit-powered product research workbench. Deliberate, model-in-the-loop: search Reddit, save approved signals, cluster pain themes, challenge your thesis, score opportunities, and publish a Winner / Next Up / Losers matrix.",
+  "tools": [
+    {
+      "name": "search_reddit",
+      "description": "Query Reddit posts or comments via PullPush. Returns pre-cleaned results sorted by a pain_score (upvotes + pain-phrase hits). Use this first — browse, don't commit.",
+      "command": "python engines/Python/PINATA/pinata.py search_reddit --query {{query}} --kind {{kind}} --subreddit {{subreddit}} --sort_type {{sort_type}} --min_score {{min_score}} --size {{size}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Search string. For posts this matches the title; for comments it matches the body."
+        },
+        "kind": {
+          "type": "string",
+          "description": "What to search: 'posts' or 'comments'. Default: posts.",
+          "default": "posts",
+          "enum": ["posts", "comments"]
+        },
+        "subreddit": {
+          "type": "string",
+          "description": "Optional subreddit name without r/ prefix (e.g. 'SaaS', 'Entrepreneur').",
+          "default": null
+        },
+        "sort_type": {
+          "type": "string",
+          "description": "Sort order: 'num_comments' (most discussed), 'score' (most upvoted), 'created_utc' (newest). Default: num_comments.",
+          "default": "num_comments",
+          "enum": ["num_comments", "score", "created_utc"]
+        },
+        "min_score": {
+          "type": "integer",
+          "description": "Minimum Reddit upvote score. Filters out low-signal noise. Default: 5.",
+          "default": 5
+        },
+        "size": {
+          "type": "integer",
+          "description": "Number of results to return. Max 100. Default: 15.",
+          "default": 15
+        }
+      }
+    },
+    {
+      "name": "save_signal",
+      "description": "Persist a specific Reddit post or comment you have approved as a meaningful research signal. Deduplicates by ID. Add tags and a note to explain why it matters.",
+      "command": "python engines/Python/PINATA/pinata.py save_signal --id {{id}} --title {{title}} --body {{body}} --url {{url}} --subreddit {{subreddit}} --kind {{kind}} --score {{score}} --tags {{tags}} --note {{note}}",
+      "required": ["id", "title", "body", "url"],
+      "parameters": {
+        "id": {
+          "type": "string",
+          "description": "Reddit item ID — used for deduplication."
+        },
+        "title": {
+          "type": "string",
+          "description": "Post title or comment thread title."
+        },
+        "body": {
+          "type": "string",
+          "description": "The cleaned text body of the post or comment."
+        },
+        "url": {
+          "type": "string",
+          "description": "Full Reddit permalink URL."
+        },
+        "subreddit": {
+          "type": "string",
+          "description": "Subreddit name.",
+          "default": ""
+        },
+        "kind": {
+          "type": "string",
+          "description": "'post' or 'comment'.",
+          "default": "post",
+          "enum": ["post", "comment"]
+        },
+        "score": {
+          "type": "integer",
+          "description": "Reddit upvote score at time of saving.",
+          "default": 0
+        },
+        "tags": {
+          "type": "string",
+          "description": "Comma-separated tags to categorize this signal, e.g. 'pain,pricing,workaround'.",
+          "default": null
+        },
+        "note": {
+          "type": "string",
+          "description": "Your research note explaining why this signal matters.",
+          "default": ""
+        }
+      }
+    },
+    {
+      "name": "list_signals",
+      "description": "List all saved signals in the current session, with optional tag filter. Use this to review what you've collected before clustering or scoring.",
+      "command": "python engines/Python/PINATA/pinata.py list_signals --tag {{tag}}",
+      "required": [],
+      "parameters": {
+        "tag": {
+          "type": "string",
+          "description": "Optional tag to filter by (e.g. 'pain', 'pricing'). Omit to list all.",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "cluster_signals",
+      "description": "Group all saved signals into named pain-theme clusters. Groups by explicit tags first, then keyword co-occurrence for untagged signals. Results are persisted in the session and included in the final matrix.",
+      "command": "python engines/Python/PINATA/pinata.py cluster_signals",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "challenge_thesis",
+      "description": "Run adversarial Reddit searches to find disconfirming evidence for a stated opportunity. Looks for satisfied users, existing solutions, low WTP, and fragmented demand. Always run this before scoring.",
+      "command": "python engines/Python/PINATA/pinata.py challenge_thesis --thesis {{thesis}} --size {{size}}",
+      "required": ["thesis"],
+      "parameters": {
+        "thesis": {
+          "type": "string",
+          "description": "The opportunity or product idea you want to stress-test. Be specific."
+        },
+        "size": {
+          "type": "integer",
+          "description": "Number of results per adversarial query. Default: 10.",
+          "default": 10
+        }
+      }
+    },
+    {
+      "name": "score_opportunity",
+      "description": "Score one opportunity across the 7-dimension PINATA rubric. Each dimension is 1–5 and weighted to a 0–100 final score. Auto-assigns Winner (≥70), Next Up (45–69), or Loser (<45).",
+      "command": "python engines/Python/PINATA/pinata.py score_opportunity --name {{name}} --description {{description}} --pain_intensity {{pain_intensity}} --recurrence {{recurrence}} --willingness_to_pay {{willingness_to_pay}} --dissatisfaction {{dissatisfaction}} --reachability {{reachability}} --competitive_whitespace {{competitive_whitespace}} --build_complexity {{build_complexity}}",
+      "required": ["name", "description"],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "Short opportunity name, e.g. 'Reddit Pain Tracker SaaS'."
+        },
+        "description": {
+          "type": "string",
+          "description": "What the product or feature does, and who it's for."
+        },
+        "pain_intensity": {
+          "type": "integer",
+          "description": "How severe is the pain? 1 (mild) to 5 (acute, blocking).",
+          "default": 3
+        },
+        "recurrence": {
+          "type": "integer",
+          "description": "How often does this pain come up? 1 (rarely) to 5 (constant).",
+          "default": 3
+        },
+        "willingness_to_pay": {
+          "type": "integer",
+          "description": "Do people signal budget or pay intent? 1 (none) to 5 (strong explicit signals).",
+          "default": 3
+        },
+        "dissatisfaction": {
+          "type": "integer",
+          "description": "How bad are current alternatives? 1 (mostly fine) to 5 (no good option exists).",
+          "default": 3
+        },
+        "reachability": {
+          "type": "integer",
+          "description": "Can you reach these users? 1 (scattered/unknown) to 5 (clear channel, subreddit, or community).",
+          "default": 3
+        },
+        "competitive_whitespace": {
+          "type": "integer",
+          "description": "How open is the competitive space? 1 (crowded) to 5 (clear gap).",
+          "default": 3
+        },
+        "build_complexity": {
+          "type": "integer",
+          "description": "How hard to build? Inverse scale — 5 means easy. 1 = very hard.",
+          "default": 3
+        }
+      }
+    },
+    {
+      "name": "publish_matrix",
+      "description": "Write the final opportunity matrix to disk as both JSON and Markdown. Includes all scored opportunities, signal clusters, and your narrative summaries. This is the deliverable.",
+      "command": "python engines/Python/PINATA/pinata.py publish_matrix --winner {{winner}} --next_up {{next_up}} --losers {{losers}} --research_notes {{research_notes}}",
+      "required": ["winner", "next_up", "losers"],
+      "parameters": {
+        "winner": {
+          "type": "string",
+          "description": "Narrative description of the winning opportunity and why it wins."
+        },
+        "next_up": {
+          "type": "string",
+          "description": "Description of next-up opportunities and what evidence is still needed."
+        },
+        "losers": {
+          "type": "string",
+          "description": "What was rejected and why — be specific about the weakness."
+        },
+        "research_notes": {
+          "type": "string",
+          "description": "Optional caveats, evidence gaps, or confidence notes.",
+          "default": ""
+        },
+        "output_path": {
+          "type": "string",
+          "description": "Optional custom output path. Defaults to ~/.pinata/opportunity_matrix.json.",
+          "default": null
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": ["publish_matrix"]
+  },
+  "env": {},
+  "data_dir": "~/.pinata"
+}
