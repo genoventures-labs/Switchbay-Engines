@@ -100,6 +100,22 @@
         "engines/Python/ResearchHelpers/research_assistant.py",
         "engines/Python/ResearchHelpers/research_instances.py",
         "engines/Python/ResearchHelpers/artifact_creation.py"
+      ],
+      "skills": [
+        "engines/Python/ResearchHelpers/skills/research-helpers-workflow.skill.md"
+      ]
+    },
+    {
+      "id": "memory-helper",
+      "displayName": "Memory Helper",
+      "path": "engines/Python/MemoryHelper/",
+      "type": "python",
+      "manifest": "engines/Python/MemoryHelper/memory_helper.engine.json",
+      "entrypoints": [
+        "engines/Python/MemoryHelper/memory_search.py"
+      ],
+      "skills": [
+        "engines/Python/MemoryHelper/skills/memory-helper-routing.skill.md"
       ]
     }
   ],
@@ -132,6 +148,11 @@
     "engines/Python/ResearchHelpers/research_instances.py",
     "engines/Python/ResearchHelpers/artifact_creation.py",
     "engines/Python/ResearchHelpers/research_helpers.engine.json",
-    "engines/Python/ResearchHelpers/AGENTS.md"
+    "engines/Python/ResearchHelpers/AGENTS.md",
+    "engines/Python/ResearchHelpers/skills/research-helpers-workflow.skill.md",
+    "engines/Python/MemoryHelper/memory_search.py",
+    "engines/Python/MemoryHelper/memory_helper.engine.json",
+    "engines/Python/MemoryHelper/AGENTS.md",
+    "engines/Python/MemoryHelper/skills/memory-helper-routing.skill.md"
   ]
 }

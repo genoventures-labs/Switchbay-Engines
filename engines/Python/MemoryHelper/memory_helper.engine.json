@@ -1,0 +1,78 @@
+{
+  "id": "memory-helper",
+  "name": "Memory Helper",
+  "description": "On-demand search and recall across Switchbay memory stores (user context, SWITCHBAY.md, workspace notes/facts, knowledge index, pins, sessions, plans). Use instead of stuffing large memory into every turn.",
+  "tools": [
+    {
+      "name": "search_memory",
+      "description": "Search Switchbay memory stores and return ranked hits with source, path, score, and snippet. Use to discover where something was remembered.",
+      "command": "python engines/Python/MemoryHelper/memory_search.py search_memory --query {{query}} --workspace {{workspace}} --limit {{limit}} --sources {{sources}} --scope {{scope}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "What to search for in memory."
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Absolute project root. Defaults to SWITCHBAY_WORKSPACE or the process cwd.",
+          "default": null
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Max hits to return. Default 12.",
+          "default": 12
+        },
+        "sources": {
+          "type": "string",
+          "description": "Comma-separated: context,switchbay,notes,facts,summary,knowledge,pins,sessions,plan,guides — or 'all'.",
+          "default": null
+        },
+        "scope": {
+          "type": "string",
+          "description": "all | workspace | global",
+          "default": "all",
+          "enum": ["all", "workspace", "global"]
+        }
+      }
+    },
+    {
+      "name": "recall_memory",
+      "description": "Recall the best-matching memory as a compact context_pack plus structured facts. Use when you need usable content for the current turn.",
+      "command": "python engines/Python/MemoryHelper/memory_search.py recall_memory --query {{query}} --workspace {{workspace}} --limit {{limit}} --sources {{sources}} --scope {{scope}}",
+      "required": ["query"],
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "What to recall from memory."
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Absolute project root. Defaults to SWITCHBAY_WORKSPACE or the process cwd.",
+          "default": null
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Max items in the context pack. Default 8.",
+          "default": 8
+        },
+        "sources": {
+          "type": "string",
+          "description": "Comma-separated sources or 'all'.",
+          "default": null
+        },
+        "scope": {
+          "type": "string",
+          "description": "all | workspace | global",
+          "default": "all",
+          "enum": ["all", "workspace", "global"]
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": []
+  },
+  "env": {},
+  "data_dir": "~/.switchbay"
+}
