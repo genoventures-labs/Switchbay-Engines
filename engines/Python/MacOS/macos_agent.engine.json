@@ -6,13 +6,13 @@
     {
       "name": "status",
       "description": "Verify the MacOS engine is available and ready.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py status",
+      "command": "python3 macos_agent.py status",
       "parameters": {}
     },
     {
       "name": "open_app",
       "description": "Open an application, file, folder, or URL using the macOS 'open' command.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py open-app --target {{target}}",
+      "command": "python3 macos_agent.py open-app --target {{target}}",
       "required": ["target"],
       "parameters": {
         "target": {
@@ -24,7 +24,7 @@
     {
       "name": "run_script",
       "description": "Run a local shell or AppleScript snippet via /bin/zsh.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py run-script --script {{script}}",
+      "command": "python3 macos_agent.py run-script --script {{script}}",
       "required": ["script"],
       "parameters": {
         "script": {
@@ -36,7 +36,7 @@
     {
       "name": "defaults_get",
       "description": "Read a macOS preference value from a defaults domain.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py defaults-get --domain {{domain}} --key {{key}}",
+      "command": "python3 macos_agent.py defaults-get --domain {{domain}} --key {{key}}",
       "required": ["domain", "key"],
       "parameters": {
         "domain": {
@@ -52,7 +52,7 @@
     {
       "name": "defaults_set",
       "description": "Write a macOS preference value to a defaults domain.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py defaults-set --domain {{domain}} --key {{key}} --value {{value}}",
+      "command": "python3 macos_agent.py defaults-set --domain {{domain}} --key {{key}} --value {{value}}",
       "required": ["domain", "key", "value"],
       "parameters": {
         "domain": {
@@ -72,7 +72,7 @@
     {
       "name": "notify",
       "description": "Send a local macOS notification with a title and message.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py notify --title {{title}} --message {{message}}",
+      "command": "python3 macos_agent.py notify --title {{title}} --message {{message}}",
       "required": ["title", "message"],
       "parameters": {
         "title": {
@@ -88,13 +88,13 @@
     {
       "name": "clipboard_get",
       "description": "Read the current contents of the macOS clipboard.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py clipboard-get",
+      "command": "python3 macos_agent.py clipboard-get",
       "parameters": {}
     },
     {
       "name": "clipboard_set",
       "description": "Write text to the macOS clipboard.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py clipboard-set --text {{text}}",
+      "command": "python3 macos_agent.py clipboard-set --text {{text}}",
       "required": ["text"],
       "parameters": {
         "text": {
@@ -106,7 +106,7 @@
     {
       "name": "screenshot",
       "description": "Capture a screenshot and save it to a file path.",
-      "command": "python3 engines/Python/MacOS/macos_agent.py screenshot --output {{output}}",
+      "command": "python3 macos_agent.py screenshot --output {{output}}",
       "required": ["output"],
       "parameters": {
         "output": {

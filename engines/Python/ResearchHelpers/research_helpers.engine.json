@@ -6,7 +6,7 @@
     {
       "name": "create_research_instance",
       "description": "Create a named research instance with a local workspace under ~/.research_instances/workspaces/. Optional tags, opening note, and first source URL.",
-      "command": "python3 engines/Python/ResearchHelpers/research_instances.py create_research_instance --name {{name}} --description {{description}} --tags {{tags}} --status {{status}} --note {{note}} --source_url {{source_url}}",
+      "command": "python3 research_instances.py create_research_instance --name {{name}} --description {{description}} --tags {{tags}} --status {{status}} --note {{note}} --source_url {{source_url}}",
       "required": ["name"],
       "parameters": {
         "name": {
@@ -44,7 +44,7 @@
     {
       "name": "list_research_instances",
       "description": "List research instances with optional status, tag, or query filters.",
-      "command": "python3 engines/Python/ResearchHelpers/research_instances.py list_research_instances --status {{status}} --tag {{tag}} --query {{query}}",
+      "command": "python3 research_instances.py list_research_instances --status {{status}} --tag {{tag}} --query {{query}}",
       "required": [],
       "parameters": {
         "status": {
@@ -68,7 +68,7 @@
     {
       "name": "get_research_instance",
       "description": "Get one research instance by name, id, or slug — including notes, sources, and workspace path.",
-      "command": "python3 engines/Python/ResearchHelpers/research_instances.py get_research_instance --name {{name}}",
+      "command": "python3 research_instances.py get_research_instance --name {{name}}",
       "required": ["name"],
       "parameters": {
         "name": {
@@ -80,7 +80,7 @@
     {
       "name": "update_research_instance",
       "description": "Update an instance: description, status, tags, rename, or append a note/source URL.",
-      "command": "python3 engines/Python/ResearchHelpers/research_instances.py update_research_instance --name {{name}} --description {{description}} --status {{status}} --tags {{tags}} --note {{note}} --source_url {{source_url}} --new_name {{new_name}}",
+      "command": "python3 research_instances.py update_research_instance --name {{name}} --description {{description}} --status {{status}} --tags {{tags}} --note {{note}} --source_url {{source_url}} --new_name {{new_name}}",
       "required": ["name"],
       "parameters": {
         "name": {
@@ -123,7 +123,7 @@
     {
       "name": "delete_research_instance",
       "description": "Delete a research instance from the index. Removes its workspace unless keep_workspace is true.",
-      "command": "python3 engines/Python/ResearchHelpers/research_instances.py delete_research_instance --name {{name}} --keep_workspace {{keep_workspace}}",
+      "command": "python3 research_instances.py delete_research_instance --name {{name}} --keep_workspace {{keep_workspace}}",
       "required": ["name"],
       "parameters": {
         "name": {
@@ -140,7 +140,7 @@
     {
       "name": "research_assistant",
       "description": "Turn a research task into a structured brief/plan with keywords, questions, search angles, and optional seed web sources. Persists to ~/.research_assistant/session.json.",
-      "command": "python3 engines/Python/ResearchHelpers/research_assistant.py research_assistant --task {{task}} --context {{context}} --output_type {{output_type}} --search {{search}} --search_count {{search_count}}",
+      "command": "python3 research_assistant.py research_assistant --task {{task}} --context {{context}} --output_type {{output_type}} --search {{search}} --search_count {{search_count}}",
       "required": ["task"],
       "parameters": {
         "task": {
@@ -173,7 +173,7 @@
     {
       "name": "data_visualization",
       "description": "Visualize structured data (JSON array, CSV, or object-of-series) as a chart spec, ASCII chart, SVG, HTML, or PNG (matplotlib if installed).",
-      "command": "python3 engines/Python/ResearchHelpers/research_assistant.py data_visualization --data {{data}} --visualization_type {{visualization_type}} --output_type {{output_type}} --title {{title}}",
+      "command": "python3 research_assistant.py data_visualization --data {{data}} --visualization_type {{visualization_type}} --output_type {{output_type}} --title {{title}}",
       "required": ["data"],
       "parameters": {
         "data": {
@@ -202,7 +202,7 @@
     {
       "name": "data_modeling",
       "description": "Run lightweight statistical models on structured data: summary stats, correlation, linear regression/trend, or naive linear forecast.",
-      "command": "python3 engines/Python/ResearchHelpers/research_assistant.py data_modeling --data {{data}} --model_type {{model_type}} --output_type {{output_type}}",
+      "command": "python3 research_assistant.py data_modeling --data {{data}} --model_type {{model_type}} --output_type {{output_type}}",
       "required": ["data"],
       "parameters": {
         "data": {
@@ -226,7 +226,7 @@
     {
       "name": "create_markdown",
       "description": "Create a structured Markdown research artifact with optional YAML frontmatter and sections.",
-      "command": "python3 engines/Python/ResearchHelpers/artifact_creation.py create_markdown --content {{content}} --filename {{filename}} --title {{title}} --metadata {{metadata}} --sections {{sections}}",
+      "command": "python3 artifact_creation.py create_markdown --content {{content}} --filename {{filename}} --title {{title}} --metadata {{metadata}} --sections {{sections}}",
       "required": ["filename"],
       "parameters": {
         "content": {
@@ -258,7 +258,7 @@
     {
       "name": "create_pdf",
       "description": "Create a PDF research artifact (requires reportlab).",
-      "command": "python3 engines/Python/ResearchHelpers/artifact_creation.py create_pdf --content {{content}} --filename {{filename}} --title {{title}} --author {{author}} --sections {{sections}}",
+      "command": "python3 artifact_creation.py create_pdf --content {{content}} --filename {{filename}} --title {{title}} --author {{author}} --sections {{sections}}",
       "required": ["filename"],
       "parameters": {
         "content": {
@@ -290,7 +290,7 @@
     {
       "name": "create_docx",
       "description": "Create a DOCX research artifact (requires python-docx).",
-      "command": "python3 engines/Python/ResearchHelpers/artifact_creation.py create_docx --content {{content}} --filename {{filename}} --title {{title}} --author {{author}} --sections {{sections}}",
+      "command": "python3 artifact_creation.py create_docx --content {{content}} --filename {{filename}} --title {{title}} --author {{author}} --sections {{sections}}",
       "required": ["filename"],
       "parameters": {
         "content": {
@@ -322,7 +322,7 @@
     {
       "name": "create_html",
       "description": "Create a self-contained HTML research artifact.",
-      "command": "python3 engines/Python/ResearchHelpers/artifact_creation.py create_html --content {{content}} --filename {{filename}} --title {{title}} --metadata {{metadata}} --sections {{sections}}",
+      "command": "python3 artifact_creation.py create_html --content {{content}} --filename {{filename}} --title {{title}} --metadata {{metadata}} --sections {{sections}}",
       "required": ["filename"],
       "parameters": {
         "content": {
@@ -354,7 +354,7 @@
     {
       "name": "create_txt",
       "description": "Create a plain-text research artifact with optional metadata and sections.",
-      "command": "python3 engines/Python/ResearchHelpers/artifact_creation.py create_txt --content {{content}} --filename {{filename}} --metadata {{metadata}} --sections {{sections}}",
+      "command": "python3 artifact_creation.py create_txt --content {{content}} --filename {{filename}} --metadata {{metadata}} --sections {{sections}}",
       "required": ["filename"],
       "parameters": {
         "content": {

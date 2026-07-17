@@ -6,7 +6,7 @@
     {
       "name": "search_memory",
       "description": "Search Switchbay memory stores and return ranked hits with source, path, score, and snippet. Use to discover where something was remembered.",
-      "command": "python3 engines/Python/MemoryHelper/memory_search.py search_memory --query {{query}} --workspace {{workspace}} --limit {{limit}} --sources {{sources}} --scope {{scope}}",
+      "command": "python3 memory_search.py search_memory --query {{query}} --workspace {{workspace}} --limit {{limit}} --sources {{sources}} --scope {{scope}}",
       "required": ["query"],
       "parameters": {
         "query": {
@@ -39,7 +39,7 @@
     {
       "name": "recall_memory",
       "description": "Recall the best-matching memory as a compact context_pack plus structured facts. Use when you need usable content for the current turn.",
-      "command": "python3 engines/Python/MemoryHelper/memory_search.py recall_memory --query {{query}} --workspace {{workspace}} --limit {{limit}} --sources {{sources}} --scope {{scope}}",
+      "command": "python3 memory_search.py recall_memory --query {{query}} --workspace {{workspace}} --limit {{limit}} --sources {{sources}} --scope {{scope}}",
       "required": ["query"],
       "parameters": {
         "query": {

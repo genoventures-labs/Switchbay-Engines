@@ -6,7 +6,7 @@
     {
       "name": "web_search",
       "description": "Search the web using DuckDuckGo (no API key required). Returns ranked results with titles, URLs, and descriptions.",
-      "command": "python3 engines/Python/WebSearch/web_search.py web_search --query {{query}} --count {{count}}",
+      "command": "python3 web_search.py web_search --query {{query}} --count {{count}}",
       "required": ["query"],
       "parameters": {
         "query": {
@@ -23,7 +23,7 @@
     {
       "name": "web_scrape",
       "description": "Fetch an explicit public URL and extract structured content: readable text, links, or both.",
-      "command": "python3 engines/Python/WebSearch/web_search.py web_scrape --url {{url}} --extract {{extract}}",
+      "command": "python3 web_search.py web_scrape --url {{url}} --extract {{extract}}",
       "required": ["url"],
       "parameters": {
         "url": {
@@ -41,7 +41,7 @@
     {
       "name": "web_crawl",
       "description": "Bounded domain crawl from a seed URL. Follows links up to `depth` levels deep, stays within the same domain, returns page summaries. Max depth 3, max pages 20.",
-      "command": "python3 engines/Python/WebSearch/web_search.py web_crawl --url {{url}} --depth {{depth}} --max_pages {{max_pages}} --delay {{delay}}",
+      "command": "python3 web_search.py web_crawl --url {{url}} --depth {{depth}} --max_pages {{max_pages}} --delay {{delay}}",
       "required": ["url"],
       "parameters": {
         "url": {
