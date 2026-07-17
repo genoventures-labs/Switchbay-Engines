@@ -6,7 +6,7 @@
     {
       "name": "list_directory",
       "description": "List the contents of a directory. Returns name, path, is_dir, and size_bytes for each entry.",
-      "command": "python engines/Python/FileHelper/file_helper.py list-directory --path {{path}} --root {{root}} --recursive {{recursive}}",
+      "command": "python3 engines/Python/FileHelper/file_helper.py list-directory --path {{path}} --root {{root}} --recursive {{recursive}}",
       "parameters": {
         "path": {
           "type": "string",
@@ -27,7 +27,7 @@
     {
       "name": "read_file",
       "description": "Read a file as text. Enforces a max size guard (default 200 KB).",
-      "command": "python engines/Python/FileHelper/file_helper.py read-file --path {{path}} --root {{root}} --max_bytes {{max_bytes}}",
+      "command": "python3 engines/Python/FileHelper/file_helper.py read-file --path {{path}} --root {{root}} --max_bytes {{max_bytes}}",
       "required": ["path"],
       "parameters": {
         "path": {
@@ -48,7 +48,7 @@
     {
       "name": "search_in_file",
       "description": "Search for a string or regex pattern in a file and return matching lines with surrounding context.",
-      "command": "python engines/Python/FileHelper/file_helper.py search --path {{path}} --query {{query}} --root {{root}} --regex {{regex}} --context_lines {{context_lines}} --max_results {{max_results}}",
+      "command": "python3 engines/Python/FileHelper/file_helper.py search --path {{path}} --query {{query}} --root {{root}} --regex {{regex}} --context_lines {{context_lines}} --max_results {{max_results}}",
       "required": ["path", "query"],
       "parameters": {
         "path": {
@@ -83,7 +83,7 @@
     {
       "name": "replace_in_file",
       "description": "Find and replace text inside a file in-place. WARNING: mutates the file.",
-      "command": "python engines/Python/FileHelper/file_helper.py replace --path {{path}} --search {{search}} --replace {{replace}} --root {{root}} --regex {{regex}} --count {{count}}",
+      "command": "python3 engines/Python/FileHelper/file_helper.py replace --path {{path}} --search {{search}} --replace {{replace}} --root {{root}} --regex {{regex}} --count {{count}}",
       "required": ["path", "search", "replace"],
       "parameters": {
         "path": {

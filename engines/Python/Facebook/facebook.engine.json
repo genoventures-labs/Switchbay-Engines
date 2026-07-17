@@ -6,7 +6,7 @@
     {
       "name": "get_object",
       "description": "Get a Facebook Graph API object by ID. Returns fields specified in the fields parameter.",
-      "command": "python engines/Python/Facebook/fbgent.py get-object --id {{object_id}} --fields {{fields}}",
+      "command": "python3 engines/Python/Facebook/fbgent.py get-object --id {{object_id}} --fields {{fields}}",
       "required": ["object_id"],
       "parameters": {
         "object_id": {
@@ -22,7 +22,7 @@
     {
       "name": "get_edge",
       "description": "Get an edge for a Facebook Graph API node (e.g. posts, photos, feed).",
-      "command": "python engines/Python/Facebook/fbgent.py get-edge --node_id {{node_id}} --edge {{edge}}",
+      "command": "python3 engines/Python/Facebook/fbgent.py get-edge --node_id {{node_id}} --edge {{edge}}",
       "required": ["node_id", "edge"],
       "parameters": {
         "node_id": {
@@ -38,7 +38,7 @@
     {
       "name": "get_page_insights",
       "description": "Fetch page insights (impressions, engagement, etc.) for a Facebook Page via the GraphQL API.",
-      "command": "python engines/Python/Facebook/fbgent.py page-insights --page_id {{page_id}} --metrics {{metrics}} --period {{period}}",
+      "command": "python3 engines/Python/Facebook/fbgent.py page-insights --page_id {{page_id}} --metrics {{metrics}} --period {{period}}",
       "required": ["page_id"],
       "parameters": {
         "page_id": {
