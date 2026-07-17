@@ -1,0 +1,387 @@
+{
+  "id": "research-helpers",
+  "name": "Research Helpers",
+  "description": "Research workbench for Switchbay: manage research instances, structure research tasks, visualize/model data, and write artifacts. Data lives under ~/.research_instances/ and ~/.research_assistant/.",
+  "tools": [
+    {
+      "name": "create_research_instance",
+      "description": "Create a named research instance with a local workspace under ~/.research_instances/workspaces/. Optional tags, opening note, and first source URL.",
+      "command": "python engines/Python/ResearchHelpers/research_instances.py create_research_instance --name {{name}} --description {{description}} --tags {{tags}} --status {{status}} --note {{note}} --source_url {{source_url}}",
+      "required": ["name"],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "Unique name for the research instance."
+        },
+        "description": {
+          "type": "string",
+          "description": "What this research is about.",
+          "default": ""
+        },
+        "tags": {
+          "type": "string",
+          "description": "Comma-separated tags or a JSON array.",
+          "default": null
+        },
+        "status": {
+          "type": "string",
+          "description": "active | paused | archived | done",
+          "default": "active",
+          "enum": ["active", "paused", "archived", "done"]
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional opening research note.",
+          "default": null
+        },
+        "source_url": {
+          "type": "string",
+          "description": "Optional first source URL (title fetched when possible).",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "list_research_instances",
+      "description": "List research instances with optional status, tag, or query filters.",
+      "command": "python engines/Python/ResearchHelpers/research_instances.py list_research_instances --status {{status}} --tag {{tag}} --query {{query}}",
+      "required": [],
+      "parameters": {
+        "status": {
+          "type": "string",
+          "description": "Filter by status.",
+          "default": null,
+          "enum": ["active", "paused", "archived", "done"]
+        },
+        "tag": {
+          "type": "string",
+          "description": "Filter by tag.",
+          "default": null
+        },
+        "query": {
+          "type": "string",
+          "description": "Substring match on name, description, or slug.",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "get_research_instance",
+      "description": "Get one research instance by name, id, or slug — including notes, sources, and workspace path.",
+      "command": "python engines/Python/ResearchHelpers/research_instances.py get_research_instance --name {{name}}",
+      "required": ["name"],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "Instance name, id, or slug."
+        }
+      }
+    },
+    {
+      "name": "update_research_instance",
+      "description": "Update an instance: description, status, tags, rename, or append a note/source URL.",
+      "command": "python engines/Python/ResearchHelpers/research_instances.py update_research_instance --name {{name}} --description {{description}} --status {{status}} --tags {{tags}} --note {{note}} --source_url {{source_url}} --new_name {{new_name}}",
+      "required": ["name"],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "Current name, id, or slug."
+        },
+        "description": {
+          "type": "string",
+          "description": "New description.",
+          "default": null
+        },
+        "status": {
+          "type": "string",
+          "description": "New status.",
+          "default": null,
+          "enum": ["active", "paused", "archived", "done"]
+        },
+        "tags": {
+          "type": "string",
+          "description": "Replace tags (comma-separated or JSON array).",
+          "default": null
+        },
+        "note": {
+          "type": "string",
+          "description": "Append a research note (also written under workspace/notes/).",
+          "default": null
+        },
+        "source_url": {
+          "type": "string",
+          "description": "Append a source URL (title fetched when possible).",
+          "default": null
+        },
+        "new_name": {
+          "type": "string",
+          "description": "Rename the instance (workspace folder follows).",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "delete_research_instance",
+      "description": "Delete a research instance from the index. Removes its workspace unless keep_workspace is true.",
+      "command": "python engines/Python/ResearchHelpers/research_instances.py delete_research_instance --name {{name}} --keep_workspace {{keep_workspace}}",
+      "required": ["name"],
+      "parameters": {
+        "name": {
+          "type": "string",
+          "description": "Name, id, or slug to delete."
+        },
+        "keep_workspace": {
+          "type": "string",
+          "description": "If true, keep the workspace folder on disk.",
+          "default": "false"
+        }
+      }
+    },
+    {
+      "name": "research_assistant",
+      "description": "Turn a research task into a structured brief/plan with keywords, questions, search angles, and optional seed web sources. Persists to ~/.research_assistant/session.json.",
+      "command": "python engines/Python/ResearchHelpers/research_assistant.py research_assistant --task {{task}} --context {{context}} --output_type {{output_type}} --search {{search}} --search_count {{search_count}}",
+      "required": ["task"],
+      "parameters": {
+        "task": {
+          "type": "string",
+          "description": "The research question or assignment."
+        },
+        "context": {
+          "type": "string",
+          "description": "Optional background, constraints, or known facts.",
+          "default": ""
+        },
+        "output_type": {
+          "type": "string",
+          "description": "Shape of the result: brief, plan, notes, report, or json.",
+          "default": "brief",
+          "enum": ["brief", "plan", "notes", "report", "json"]
+        },
+        "search": {
+          "type": "string",
+          "description": "Whether to fetch seed web sources (true/false).",
+          "default": "true"
+        },
+        "search_count": {
+          "type": "integer",
+          "description": "Max seed sources to fetch. Default 5.",
+          "default": 5
+        }
+      }
+    },
+    {
+      "name": "data_visualization",
+      "description": "Visualize structured data (JSON array, CSV, or object-of-series) as a chart spec, ASCII chart, SVG, HTML, or PNG (matplotlib if installed).",
+      "command": "python engines/Python/ResearchHelpers/research_assistant.py data_visualization --data {{data}} --visualization_type {{visualization_type}} --output_type {{output_type}} --title {{title}}",
+      "required": ["data"],
+      "parameters": {
+        "data": {
+          "type": "string",
+          "description": "Data payload: JSON number array, array of objects, object of series, CSV with header, or comma-separated numbers."
+        },
+        "visualization_type": {
+          "type": "string",
+          "description": "Chart type: auto, bar, line, scatter, histogram, or table.",
+          "default": "auto",
+          "enum": ["auto", "bar", "line", "scatter", "histogram", "table"]
+        },
+        "output_type": {
+          "type": "string",
+          "description": "Output form: spec, ascii, svg, html, json, or png.",
+          "default": "spec",
+          "enum": ["spec", "ascii", "svg", "html", "json", "png"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional chart title.",
+          "default": "Data Visualization"
+        }
+      }
+    },
+    {
+      "name": "data_modeling",
+      "description": "Run lightweight statistical models on structured data: summary stats, correlation, linear regression/trend, or naive linear forecast.",
+      "command": "python engines/Python/ResearchHelpers/research_assistant.py data_modeling --data {{data}} --model_type {{model_type}} --output_type {{output_type}}",
+      "required": ["data"],
+      "parameters": {
+        "data": {
+          "type": "string",
+          "description": "Data payload: JSON number array, array of objects, object of series, CSV with header, or comma-separated numbers."
+        },
+        "model_type": {
+          "type": "string",
+          "description": "Model to run: summary, correlation, regression, trend, or forecast.",
+          "default": "summary",
+          "enum": ["summary", "correlation", "regression", "trend", "forecast"]
+        },
+        "output_type": {
+          "type": "string",
+          "description": "Result shape: json, markdown, or table.",
+          "default": "json",
+          "enum": ["json", "markdown", "table"]
+        }
+      }
+    },
+    {
+      "name": "create_markdown",
+      "description": "Create a structured Markdown research artifact with optional YAML frontmatter and sections.",
+      "command": "python engines/Python/ResearchHelpers/artifact_creation.py create_markdown --content {{content}} --filename {{filename}} --title {{title}} --metadata {{metadata}} --sections {{sections}}",
+      "required": ["filename"],
+      "parameters": {
+        "content": {
+          "type": "string",
+          "description": "Main markdown body (used when sections are omitted).",
+          "default": ""
+        },
+        "filename": {
+          "type": "string",
+          "description": "Output path for the .md file."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional title (stored in metadata when provided).",
+          "default": null
+        },
+        "metadata": {
+          "type": "string",
+          "description": "YAML or JSON metadata for frontmatter.",
+          "default": null
+        },
+        "sections": {
+          "type": "string",
+          "description": "JSON list of sections: [{\"title\":\"...\",\"body\":\"...\"}].",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "create_pdf",
+      "description": "Create a PDF research artifact (requires reportlab).",
+      "command": "python engines/Python/ResearchHelpers/artifact_creation.py create_pdf --content {{content}} --filename {{filename}} --title {{title}} --author {{author}} --sections {{sections}}",
+      "required": ["filename"],
+      "parameters": {
+        "content": {
+          "type": "string",
+          "description": "Main body text when sections are omitted.",
+          "default": ""
+        },
+        "filename": {
+          "type": "string",
+          "description": "Output path for the .pdf file."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional document title.",
+          "default": null
+        },
+        "author": {
+          "type": "string",
+          "description": "Optional author line.",
+          "default": null
+        },
+        "sections": {
+          "type": "string",
+          "description": "JSON list of sections: [{\"title\":\"...\",\"body\":\"...\"}].",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "create_docx",
+      "description": "Create a DOCX research artifact (requires python-docx).",
+      "command": "python engines/Python/ResearchHelpers/artifact_creation.py create_docx --content {{content}} --filename {{filename}} --title {{title}} --author {{author}} --sections {{sections}}",
+      "required": ["filename"],
+      "parameters": {
+        "content": {
+          "type": "string",
+          "description": "Main body text when sections are omitted.",
+          "default": ""
+        },
+        "filename": {
+          "type": "string",
+          "description": "Output path for the .docx file."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional document title.",
+          "default": null
+        },
+        "author": {
+          "type": "string",
+          "description": "Optional author line.",
+          "default": null
+        },
+        "sections": {
+          "type": "string",
+          "description": "JSON list of sections: [{\"title\":\"...\",\"body\":\"...\"}].",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "create_html",
+      "description": "Create a self-contained HTML research artifact.",
+      "command": "python engines/Python/ResearchHelpers/artifact_creation.py create_html --content {{content}} --filename {{filename}} --title {{title}} --metadata {{metadata}} --sections {{sections}}",
+      "required": ["filename"],
+      "parameters": {
+        "content": {
+          "type": "string",
+          "description": "Main HTML/body content when sections are omitted.",
+          "default": ""
+        },
+        "filename": {
+          "type": "string",
+          "description": "Output path for the .html file."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional page title.",
+          "default": null
+        },
+        "metadata": {
+          "type": "string",
+          "description": "YAML or JSON metadata for <meta> tags.",
+          "default": null
+        },
+        "sections": {
+          "type": "string",
+          "description": "JSON list of sections: [{\"title\":\"...\",\"body\":\"...\"}].",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "create_txt",
+      "description": "Create a plain-text research artifact with optional metadata and sections.",
+      "command": "python engines/Python/ResearchHelpers/artifact_creation.py create_txt --content {{content}} --filename {{filename}} --metadata {{metadata}} --sections {{sections}}",
+      "required": ["filename"],
+      "parameters": {
+        "content": {
+          "type": "string",
+          "description": "Main text content when sections are omitted.",
+          "default": ""
+        },
+        "filename": {
+          "type": "string",
+          "description": "Output path for the .txt file."
+        },
+        "metadata": {
+          "type": "string",
+          "description": "YAML or JSON metadata header.",
+          "default": null
+        },
+        "sections": {
+          "type": "string",
+          "description": "JSON list of sections: [{\"title\":\"...\",\"body\":\"...\"}].",
+          "default": null
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": ["delete_research_instance", "create_pdf", "create_docx"]
+  },
+  "env": {},
+  "data_dir": "~/.research_instances"
+}
