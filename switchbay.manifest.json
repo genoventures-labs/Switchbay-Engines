@@ -117,10 +117,24 @@
       "skills": [
         "engines/Python/MemoryHelper/skills/memory-helper-routing.skill.md"
       ]
+    },
+    {
+      "id": "pagetend",
+      "displayName": "PageTend Helper",
+      "path": "engines/Python/PagetendHelper/",
+      "type": "python",
+      "manifest": "engines/Python/PagetendHelper/pagetend.engine.json",
+      "entrypoints": [
+        "engines/Python/PagetendHelper/pagetend_helper.py"
+      ],
+      "skills": [
+        "engines/Python/PagetendHelper/skills/pagetend-stats-routing.skill.md"
+      ]
     }
   ],
   "files": [
     "README.md",
+    "BUILDERS_MANUAL.md",
     "engines/Python/Gumroad/gumops.engine.json",
     "engines/Python/Gumroad/gumops_runner.py",
     "engines/Python/Gumroad/gumgent.py",
@@ -153,6 +167,10 @@
     "engines/Python/MemoryHelper/memory_search.py",
     "engines/Python/MemoryHelper/memory_helper.engine.json",
     "engines/Python/MemoryHelper/AGENTS.md",
-    "engines/Python/MemoryHelper/skills/memory-helper-routing.skill.md"
+    "engines/Python/MemoryHelper/skills/memory-helper-routing.skill.md",
+    "engines/Python/PagetendHelper/pagetend_helper.py",
+    "engines/Python/PagetendHelper/pagetend.engine.json",
+    "engines/Python/PagetendHelper/AGENTS.md",
+    "engines/Python/PagetendHelper/skills/pagetend-stats-routing.skill.md"
   ]
 }

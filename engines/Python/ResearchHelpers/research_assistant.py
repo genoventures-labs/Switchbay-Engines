@@ -48,6 +48,47 @@ def _ensure_dirs() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _noneish(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if text in {"", "None", "null"}:
+        return None
+    return text
+
+
+def _parse_int(value: Any, default: int, *, minimum: int = 1, maximum: int = 100) -> int:
+    """Parse CLI ints. Missing Switchbay placeholders arrive as the string 'None'."""
+    if value is None:
+        return default
+    text = str(value).strip()
+    if text in {"", "None", "null"}:
+        return default
+    try:
+        parsed = int(float(text))
+    except (TypeError, ValueError):
+        return default
+    return max(minimum, min(parsed, maximum))
+
+
+def _truthy(value: Any, default: bool = False) -> bool:
+    if value is None:
+        return default
+    text = str(value).strip().lower()
+    if text in {"", "none", "null"}:
+        return default
+    if text in {"1", "true", "yes", "on"}:
+        return True
+    if text in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
+def _choice(value: Any, allowed: set[str], default: str) -> str:
+    text = (_noneish(str(value) if value is not None else None) or default).strip().lower()
+    return text if text in allowed else default
+
+
 # ---------------------------------------------------------------------------
 # SSL + HTTP (same pattern as WebSearch / PINATA)
 # ---------------------------------------------------------------------------
@@ -416,8 +457,8 @@ def research_assistant(
     task: str,
     context: str = "",
     output_type: str = "brief",
-    search: bool = True,
-    search_count: int = 5,
+    search: Any = True,
+    search_count: Any = 5,
 ) -> Dict[str, Any]:
     """Structure a research task into a reusable brief/plan and persist it.
 
@@ -429,16 +470,13 @@ def research_assistant(
         search_count: Max seed sources to fetch.
     """
     task = (task or "").strip()
-    if not task:
+    if not task or task in {"None", "null"}:
         raise ValueError("task is required")
 
-    output_type = (output_type or "brief").strip().lower()
-    if output_type not in OUTPUT_TYPES_RESEARCH:
-        raise ValueError(f"output_type must be one of: {', '.join(sorted(OUTPUT_TYPES_RESEARCH))}")
-
-    context = (context or "").strip()
-    if context in {"None", "null"}:
-        context = ""
+    output_type = _choice(output_type, OUTPUT_TYPES_RESEARCH, "brief")
+    context = _noneish(context) or ""
+    do_search = _truthy(search, True)
+    count = _parse_int(search_count, 5, minimum=1, maximum=10)
 
     keywords = _extract_keywords(f"{task} {context}")
     questions = _build_research_questions(task, keywords)
@@ -446,8 +484,8 @@ def research_assistant(
 
     sources: List[Dict[str, str]] = []
     search_note = "search skipped"
-    if search:
-        sources = _search_web(search_angles[0], count=max(1, min(search_count, 10)))
+    if do_search:
+        sources = _search_web(search_angles[0], count=count)
         search_note = f"fetched {len(sources)} seed source(s)" if sources else "web search returned no results (offline or blocked)"
 
     plan_steps = [
@@ -701,14 +739,10 @@ def data_visualization(
         output_type: spec | ascii | svg | html | json | png
         title: Chart title used in rendered outputs.
     """
-    visualization_type = (visualization_type or "auto").strip().lower()
-    output_type = (output_type or "spec").strip().lower()
-    if visualization_type not in VIZ_TYPES:
-        raise ValueError(f"visualization_type must be one of: {', '.join(sorted(VIZ_TYPES))}")
-    if output_type not in VIZ_OUTPUTS:
-        raise ValueError(f"output_type must be one of: {', '.join(sorted(VIZ_OUTPUTS))}")
-    if title in {"None", "null", ""}:
-        title = "Data Visualization"
+    visualization_type = _choice(visualization_type, VIZ_TYPES, "auto")
+    output_type = _choice(output_type, VIZ_OUTPUTS, "spec")
+    title = _noneish(title) or "Data Visualization"
+
 
     parsed = _parse_data(data)
     viz = _choose_viz(parsed["shape"], visualization_type)
@@ -846,12 +880,8 @@ def data_modeling(
         model_type: summary | correlation | regression | trend | forecast
         output_type: json | markdown | table
     """
-    model_type = (model_type or "summary").strip().lower()
-    output_type = (output_type or "json").strip().lower()
-    if model_type not in MODEL_TYPES:
-        raise ValueError(f"model_type must be one of: {', '.join(sorted(MODEL_TYPES))}")
-    if output_type not in MODEL_OUTPUTS:
-        raise ValueError(f"output_type must be one of: {', '.join(sorted(MODEL_OUTPUTS))}")
+    model_type = _choice(model_type, MODEL_TYPES, "summary")
+    output_type = _choice(output_type, MODEL_OUTPUTS, "json")
 
     parsed = _parse_data(data)
     series: Dict[str, List[float]] = {k: list(v) for k, v in parsed.get("series", {}).items()}
@@ -978,7 +1008,6 @@ def _cli() -> None:
     p.add_argument(
         "--output_type",
         default="brief",
-        choices=sorted(OUTPUT_TYPES_RESEARCH),
         help="brief | plan | notes | report | json",
     )
     p.add_argument(
@@ -986,20 +1015,18 @@ def _cli() -> None:
         default="true",
         help="Fetch seed web sources (true/false). Default: true",
     )
-    p.add_argument("--search_count", type=int, default=5, help="Max seed sources (default 5)")
+    p.add_argument("--search_count", default="5", help="Max seed sources (default 5)")
 
     p = sub.add_parser("data_visualization", help="Visualize structured data")
     p.add_argument("--data", required=True, help="JSON, CSV, or number list")
     p.add_argument(
         "--visualization_type",
         default="auto",
-        choices=sorted(VIZ_TYPES),
         help="auto | bar | line | scatter | histogram | table",
     )
     p.add_argument(
         "--output_type",
         default="spec",
-        choices=sorted(VIZ_OUTPUTS),
         help="spec | ascii | svg | html | json | png",
     )
     p.add_argument("--title", default="Data Visualization", help="Chart title")
@@ -1009,13 +1036,11 @@ def _cli() -> None:
     p.add_argument(
         "--model_type",
         default="summary",
-        choices=sorted(MODEL_TYPES),
         help="summary | correlation | regression | trend | forecast",
     )
     p.add_argument(
         "--output_type",
         default="json",
-        choices=sorted(MODEL_OUTPUTS),
         help="json | markdown | table",
     )
 
@@ -1024,14 +1049,7 @@ def _cli() -> None:
 
     try:
         if args.tool == "research_assistant":
-            search_flag = str(kwargs.pop("search", "true")).strip().lower() not in {
-                "0",
-                "false",
-                "no",
-                "off",
-                "none",
-            }
-            result = research_assistant(search=search_flag, **kwargs)
+            result = research_assistant(**kwargs)
         elif args.tool == "data_visualization":
             result = data_visualization(**kwargs)
         elif args.tool == "data_modeling":

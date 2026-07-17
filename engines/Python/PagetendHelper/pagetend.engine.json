@@ -1,0 +1,182 @@
+{
+  "id": "pagetend",
+  "name": "PageTend Helper",
+  "description": "Read-only PageTend stats and status tools: analytics, dashboard, Meta live, settings, signals, posts, inbox, and rolling views-per-post. Configure PAGETEND_BASE_URL or ~/.pagetend/config.json. No write/mutate calls.",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Check PageTend base URL config and whether the host is reachable. Call this first if connectivity is unknown.",
+      "command": "python3 pagetend_helper.py status --base_url {{base_url}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin (e.g. http://localhost:3000 or your tunnel URL). Omit to use PAGETEND_BASE_URL, ~/.pagetend/config.json, or http://localhost:3000.",
+          "default": null
+        }
+      }
+    },
+    {
+      "name": "analytics",
+      "description": "Richest aggregated stats: posts/media/inbox/automation breakdowns + live Meta engagement totals.",
+      "command": "python3 pagetend_helper.py analytics --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), include a compact summary plus full data.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "dashboard",
+      "description": "Dashboard snapshot (calendar, queue, media, campaign, automations). Always HTTP 200 from PageTend — check fallback=true before trusting numbers.",
+      "command": "python3 pagetend_helper.py dashboard --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), include a compact summary plus full data.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "meta_live",
+      "description": "Live Meta Graph pull: page profile, recent posts, engagement totals. Partial failures appear in errors[].",
+      "command": "python3 pagetend_helper.py meta_live --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), include a compact summary plus full data.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "settings",
+      "description": "Workspace row counts (posts/media/threads) + integration health (Meta/OpenAI/Supabase/Switchbay).",
+      "command": "python3 pagetend_helper.py settings --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), include a compact summary plus full data.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "signals",
+      "description": "Derived product-signal analytics from inbox threads.",
+      "command": "python3 pagetend_helper.py signals --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), include a compact summary plus full data.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "list_posts",
+      "description": "List PageTend posts (read-only).",
+      "command": "python3 pagetend_helper.py list_posts --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), return count + compact sample.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "list_inbox",
+      "description": "List inbox threads (read-only).",
+      "command": "python3 pagetend_helper.py list_inbox --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), return count + compact sample.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    },
+    {
+      "name": "views_per_post",
+      "description": "Rolling-window performance card: posts published, total views/impressions, and views per post. Default last 30 days. Uses PageTend /api/pagetend/rolling-stats.",
+      "command": "python3 pagetend_helper.py views_per_post --days {{days}} --base_url {{base_url}} --summary {{summary}}",
+      "required": [],
+      "parameters": {
+        "days": {
+          "type": "integer",
+          "description": "Rolling window length in days (1–365). Default 30. Always pass an integer when possible.",
+          "default": 30
+        },
+        "base_url": {
+          "type": "string",
+          "description": "Optional PageTend origin. Omit to use configured default.",
+          "default": null
+        },
+        "summary": {
+          "type": "string",
+          "description": "If true (default), include a compact card/summary plus full data.",
+          "default": "true",
+          "enum": ["true", "false"]
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": []
+  },
+  "env": {},
+  "data_dir": "~/.pagetend"
+}

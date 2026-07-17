@@ -280,7 +280,7 @@ def create_research_instance(
     if not name:
         raise ValueError("name is required")
 
-    status = (status or "active").strip().lower()
+    status = (_noneish(status) or "active").strip().lower()
     if status not in STATUSES:
         raise ValueError(f"status must be one of: {', '.join(sorted(STATUSES))}")
 
@@ -578,12 +578,12 @@ def _cli() -> None:
     p.add_argument("--name", required=True, help="Unique instance name")
     p.add_argument("--description", default="", help="What this research is about")
     p.add_argument("--tags", default=None, help="Comma-separated or JSON array of tags")
-    p.add_argument("--status", default="active", choices=sorted(STATUSES))
+    p.add_argument("--status", default="active", help="active | paused | archived | done")
     p.add_argument("--note", default=None, help="Optional opening note")
     p.add_argument("--source_url", default=None, help="Optional first source URL")
 
     p = sub.add_parser("list_research_instances", help="List research instances")
-    p.add_argument("--status", default=None, choices=sorted(STATUSES), help="Filter by status")
+    p.add_argument("--status", default=None, help="Filter by status")
     p.add_argument("--tag", default=None, help="Filter by tag")
     p.add_argument("--query", default=None, help="Substring search on name/description/slug")
 
@@ -593,7 +593,7 @@ def _cli() -> None:
     p = sub.add_parser("update_research_instance", help="Update a research instance")
     p.add_argument("--name", required=True, help="Current name, id, or slug")
     p.add_argument("--description", default=None, help="New description")
-    p.add_argument("--status", default=None, choices=sorted(STATUSES))
+    p.add_argument("--status", default=None, help="active | paused | archived | done")
     p.add_argument("--tags", default=None, help="Replace tags (comma-separated or JSON array)")
     p.add_argument("--note", default=None, help="Append a research note")
     p.add_argument("--source_url", default=None, help="Append a source URL")
@@ -620,12 +620,8 @@ def _cli() -> None:
         elif args.tool == "update_research_instance":
             result = update_research_instance(**kwargs)
         elif args.tool == "delete_research_instance":
-            keep = str(kwargs.pop("keep_workspace", "false")).strip().lower() in {
-                "1",
-                "true",
-                "yes",
-                "on",
-            }
+            keep_raw = str(kwargs.pop("keep_workspace", "false")).strip().lower()
+            keep = keep_raw in {"1", "true", "yes", "on"}
             result = delete_research_instance(keep_workspace=keep, **kwargs)
         else:
             raise ValueError(f"Unknown tool: {args.tool}")

@@ -13,6 +13,7 @@ Engine parts and templates for **Switchbay** — a terminal-first AI coding work
 [![Quick Navigation - Engine Bay](https://img.shields.io/badge/Quick_Navigation-lightgrey)](#)
 - [FAQ](#faq)
 - [What's Inside](#whats-inside)
+- [Builder's Manual](#builders-manual)
 - [How you can contribute](#how-you-can-contribute)
 
 ---
@@ -44,6 +45,15 @@ Inside of this repository, you'll find a variety of engine parts and templates t
 - [![Ruby](https://img.shields.io/badge/Ruby-111827?logo=ruby&logoColor=red)](#)
 - [![Python](https://img.shields.io/badge/Python-111827?logo=python&logoColor=yellow)](#)
 - [![Node.js](https://img.shields.io/badge/Node.js-111827?logo=node.js&logoColor=green)](#) 
+
+---
+
+## Builder's Manual
+
+Shipping a new engine? Start here:
+
+**[BUILDERS_MANUAL.md](./BUILDERS_MANUAL.md)** — how manifests, CLIs, cwd, `{{param}}` interpolation, approvals, skills, and JSON stdout need to be built so models can call your tools without breakage.
+
 ---
 
 ## Closed Contributions

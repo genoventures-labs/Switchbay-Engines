@@ -129,6 +129,20 @@ def _noneish(value: Optional[str]) -> Optional[str]:
     return text
 
 
+def _parse_int(value: Any, default: int, *, minimum: int = 1, maximum: int = 100) -> int:
+    """Parse CLI ints. Missing Switchbay placeholders arrive as the string 'None'."""
+    if value is None:
+        return default
+    text = str(value).strip()
+    if text in {"", "None", "null"}:
+        return default
+    try:
+        parsed = int(float(text))
+    except (TypeError, ValueError):
+        return default
+    return max(minimum, min(parsed, maximum))
+
+
 def _resolve_workspace(workspace: Optional[str]) -> Path:
     raw = _noneish(workspace) or os.environ.get("SWITCHBAY_WORKSPACE") or os.getcwd()
     return Path(raw).expanduser().resolve()
@@ -647,7 +661,7 @@ def _inventory(workspace: Path) -> Dict[str, Any]:
 def search_memory(
     query: str,
     workspace: Optional[str] = None,
-    limit: int = 12,
+    limit: Any = 12,
     sources: Optional[str] = None,
     scope: str = "all",
 ) -> Dict[str, Any]:
@@ -656,7 +670,7 @@ def search_memory(
     Use this to discover *where* something was remembered.
     """
     query = (query or "").strip()
-    if not query:
+    if not query or query in {"None", "null"}:
         raise ValueError("query is required")
 
     ws = _resolve_workspace(workspace)
@@ -669,8 +683,8 @@ def search_memory(
     elif scope != "all":
         raise ValueError("scope must be all, workspace, or global")
 
-    limit = max(1, min(int(limit or 12), 50))
-    hits = _gather_hits(query, ws, chosen)[:limit]
+    limit_n = _parse_int(limit, 12, minimum=1, maximum=50)
+    hits = _gather_hits(query, ws, chosen)[:limit_n]
 
     return {
         "ok": True,
@@ -690,7 +704,7 @@ def search_memory(
 def recall_memory(
     query: str,
     workspace: Optional[str] = None,
-    limit: int = 8,
+    limit: Any = 8,
     sources: Optional[str] = None,
     scope: str = "all",
 ) -> Dict[str, Any]:
@@ -699,7 +713,7 @@ def recall_memory(
     Use this when you need usable content for the current turn — not just hit metadata.
     """
     query = (query or "").strip()
-    if not query:
+    if not query or query in {"None", "null"}:
         raise ValueError("query is required")
 
     ws = _resolve_workspace(workspace)
@@ -712,8 +726,8 @@ def recall_memory(
     elif scope != "all":
         raise ValueError("scope must be all, workspace, or global")
 
-    limit = max(1, min(int(limit or 8), 25))
-    hits = _gather_hits(query, ws, chosen)[:limit]
+    limit_n = _parse_int(limit, 8, minimum=1, maximum=25)
+    hits = _gather_hits(query, ws, chosen)[:limit_n]
 
     # Prefer durable stores in the assembled pack
     priority = {"facts": 0, "notes": 1, "switchbay": 2, "summary": 3, "context": 4, "pins": 5, "knowledge": 6, "plan": 7, "sessions": 8, "guides": 9}
@@ -775,7 +789,6 @@ def _cli() -> None:
         )
         p.add_argument(
             "--limit",
-            type=int,
             default=None,
             help="Max hits to return",
         )
@@ -787,17 +800,17 @@ def _cli() -> None:
         p.add_argument(
             "--scope",
             default="all",
-            choices=["all", "workspace", "global"],
             help="all | workspace | global",
         )
 
     p = sub.add_parser("search_memory", help="Ranked search across Switchbay memory stores")
     add_common(p)
-    p.set_defaults(limit=12)
+    p.set_defaults(limit="12")
 
     p = sub.add_parser("recall_memory", help="Compact context pack from best memory matches")
     add_common(p)
-    p.set_defaults(limit=8)
+    p.set_defaults(limit="8")
+
 
     args = parser.parse_args()
     kwargs = {
