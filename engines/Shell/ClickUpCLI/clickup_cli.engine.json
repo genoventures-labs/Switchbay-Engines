@@ -1,0 +1,226 @@
+{
+  "id": "clickup-cli",
+  "name": "ClickUp CLI",
+  "description": "Shell wrapper around the cup ClickUp CLI for AI agents. Read/search standup tools, plus guarded create/update/comment/assign/delete. Requires cup on PATH (or CUP_BIN).",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Check that cup is installed and whether auth works. Call first if ClickUp connectivity is unknown.",
+      "command": "bash clickup_cli_runner.sh status",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "auth",
+      "description": "Validate the ClickUp API token and return the current user / workspace.",
+      "command": "bash clickup_cli_runner.sh auth",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "summary",
+      "description": "Daily standup summary: completed, in-progress, and overdue work.",
+      "command": "bash clickup_cli_runner.sh summary --hours {{hours}}",
+      "required": [],
+      "parameters": {
+        "hours": {
+          "type": "integer",
+          "description": "Completed-tasks lookback in hours. Default 24.",
+          "default": 24
+        }
+      }
+    },
+    {
+      "name": "assigned",
+      "description": "List all tasks assigned to me, grouped by status.",
+      "command": "bash clickup_cli_runner.sh assigned",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "overdue",
+      "description": "List tasks past their due date.",
+      "command": "bash clickup_cli_runner.sh overdue",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "inbox",
+      "description": "Recently updated tasks grouped by time period.",
+      "command": "bash clickup_cli_runner.sh inbox",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "sprint",
+      "description": "List my tasks in the current active sprint.",
+      "command": "bash clickup_cli_runner.sh sprint",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "sprints",
+      "description": "List all sprints in sprint folders.",
+      "command": "bash clickup_cli_runner.sh sprints",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "spaces",
+      "description": "List spaces in the workspace.",
+      "command": "bash clickup_cli_runner.sh spaces",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "members",
+      "description": "List workspace members.",
+      "command": "bash clickup_cli_runner.sh members",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "tasks",
+      "description": "List tasks with optional filters (status, list, space, name, assignee, tag). Defaults to my tasks unless all=true.",
+      "command": "bash clickup_cli_runner.sh tasks --status {{status}} --list {{list}} --space {{space}} --name {{name}} --assignee {{assignee}} --tag {{tag}} --all {{all}} --include-closed {{include_closed}}",
+      "required": [],
+      "parameters": {
+        "status": { "type": "string", "description": "Filter by status (e.g. in progress).", "default": null },
+        "list": { "type": "string", "description": "Filter by list ID.", "default": null },
+        "space": { "type": "string", "description": "Filter by space ID or name.", "default": null },
+        "name": { "type": "string", "description": "Partial name match.", "default": null },
+        "assignee": { "type": "string", "description": "Assignee user ID or me.", "default": null },
+        "tag": { "type": "string", "description": "Tag name filter.", "default": null },
+        "all": { "type": "string", "description": "If true, include all assignees.", "default": "false", "enum": ["true", "false"] },
+        "include_closed": { "type": "string", "description": "If true, include closed/done tasks.", "default": "false", "enum": ["true", "false"] }
+      }
+    },
+    {
+      "name": "search",
+      "description": "Search tasks by text (mine by default; set all=true for workspace-wide).",
+      "command": "bash clickup_cli_runner.sh search --query {{query}} --status {{status}} --list {{list}} --space {{space}} --assignee {{assignee}} --tag {{tag}} --all {{all}} --include-closed {{include_closed}}",
+      "required": ["query"],
+      "parameters": {
+        "query": { "type": "string", "description": "Search text." },
+        "status": { "type": "string", "description": "Optional status filter.", "default": null },
+        "list": { "type": "string", "description": "Optional list ID.", "default": null },
+        "space": { "type": "string", "description": "Optional space ID or name.", "default": null },
+        "assignee": { "type": "string", "description": "Optional assignee.", "default": null },
+        "tag": { "type": "string", "description": "Optional tag.", "default": null },
+        "all": { "type": "string", "description": "Search all assignees if true.", "default": "false", "enum": ["true", "false"] },
+        "include_closed": { "type": "string", "description": "Include closed tasks if true.", "default": "false", "enum": ["true", "false"] }
+      }
+    },
+    {
+      "name": "task",
+      "description": "Get full details for a task ID, custom ID, or URL.",
+      "command": "bash clickup_cli_runner.sh task --task_id {{task_id}}",
+      "required": ["task_id"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "ClickUp task ID, custom ID, or URL." }
+      }
+    },
+    {
+      "name": "activity",
+      "description": "Task details plus comments — good for catching up on a ticket.",
+      "command": "bash clickup_cli_runner.sh activity --task_id {{task_id}}",
+      "required": ["task_id"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "ClickUp task ID, custom ID, or URL." }
+      }
+    },
+    {
+      "name": "comments",
+      "description": "List comments on a task.",
+      "command": "bash clickup_cli_runner.sh comments --task_id {{task_id}}",
+      "required": ["task_id"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "ClickUp task ID, custom ID, or URL." }
+      }
+    },
+    {
+      "name": "subtasks",
+      "description": "List subtasks under a parent task or initiative.",
+      "command": "bash clickup_cli_runner.sh subtasks --task_id {{task_id}}",
+      "required": ["task_id"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "Parent task ID, custom ID, or URL." }
+      }
+    },
+    {
+      "name": "create",
+      "description": "Create a task (needs list or sprint:current) or subtask (needs parent). Markdown description supported.",
+      "command": "bash clickup_cli_runner.sh create --list {{list}} --parent {{parent}} --name {{name}} --description {{description}} --status {{status}} --priority {{priority}} --assignee {{assignee}} --tags {{tags}} --due-date {{due_date}}",
+      "required": ["name"],
+      "parameters": {
+        "name": { "type": "string", "description": "Task name." },
+        "list": { "type": "string", "description": "Target list ID or sprint:current.", "default": null },
+        "parent": { "type": "string", "description": "Parent task ID for a subtask.", "default": null },
+        "description": { "type": "string", "description": "Markdown description.", "default": null },
+        "status": { "type": "string", "description": "Initial status.", "default": null },
+        "priority": { "type": "string", "description": "urgent|high|normal|low.", "default": null },
+        "assignee": { "type": "string", "description": "User ID or me.", "default": null },
+        "tags": { "type": "string", "description": "Comma-separated tags.", "default": null },
+        "due_date": { "type": "string", "description": "Due date YYYY-MM-DD or ISO.", "default": null }
+      },
+      "approval": "always",
+      "approval_reason": "Creating a ClickUp task changes external project state."
+    },
+    {
+      "name": "update",
+      "description": "Update a task's status, priority, name, description, and/or due date.",
+      "command": "bash clickup_cli_runner.sh update --task_id {{task_id}} --status {{status}} --priority {{priority}} --name {{name}} --description {{description}} --due-date {{due_date}}",
+      "required": ["task_id"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "Task ID, custom ID, or URL." },
+        "status": { "type": "string", "description": "New status.", "default": null },
+        "priority": { "type": "string", "description": "urgent|high|normal|low.", "default": null },
+        "name": { "type": "string", "description": "New task name.", "default": null },
+        "description": { "type": "string", "description": "New markdown description.", "default": null },
+        "due_date": { "type": "string", "description": "New due date.", "default": null }
+      },
+      "approval": "always",
+      "approval_reason": "Updating a ClickUp task changes external project state."
+    },
+    {
+      "name": "comment",
+      "description": "Post a Markdown comment on a task.",
+      "command": "bash clickup_cli_runner.sh comment --task_id {{task_id}} --message {{message}}",
+      "required": ["task_id", "message"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "Task ID, custom ID, or URL." },
+        "message": { "type": "string", "description": "Comment body (Markdown)." }
+      },
+      "approval": "always",
+      "approval_reason": "Posting a comment communicates externally in ClickUp."
+    },
+    {
+      "name": "assign",
+      "description": "Assign a task to a user ID or me.",
+      "command": "bash clickup_cli_runner.sh assign --task_id {{task_id}} --assignee {{assignee}}",
+      "required": ["task_id", "assignee"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "Task ID, custom ID, or URL." },
+        "assignee": { "type": "string", "description": "User ID or me." }
+      },
+      "approval": "always",
+      "approval_reason": "Assigning a task changes responsibility in ClickUp."
+    },
+    {
+      "name": "delete",
+      "description": "Permanently delete a task. Only when explicitly requested.",
+      "command": "bash clickup_cli_runner.sh delete --task_id {{task_id}}",
+      "required": ["task_id"],
+      "parameters": {
+        "task_id": { "type": "string", "description": "Task ID, custom ID, or URL." }
+      },
+      "approval": "always",
+      "approval_reason": "Deleting a ClickUp task is destructive."
+    }
+  ],
+  "approval": {
+    "always": ["create", "update", "comment", "assign", "delete"]
+  },
+  "env": {},
+  "data_dir": "~/.cup"
+}

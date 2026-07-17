@@ -130,6 +130,19 @@
       "skills": [
         "engines/Python/PagetendHelper/skills/pagetend-stats-routing.skill.md"
       ]
+    },
+    {
+      "id": "clickup-cli",
+      "displayName": "ClickUp CLI",
+      "path": "engines/Shell/ClickUpCLI/",
+      "type": "shell",
+      "manifest": "engines/Shell/ClickUpCLI/clickup_cli.engine.json",
+      "entrypoints": [
+        "engines/Shell/ClickUpCLI/clickup_cli_runner.sh"
+      ],
+      "skills": [
+        "engines/Shell/ClickUpCLI/skills/clickup-cli-routing.skill.md"
+      ]
     }
   ],
   "files": [
@@ -171,6 +184,10 @@
     "engines/Python/PagetendHelper/pagetend_helper.py",
     "engines/Python/PagetendHelper/pagetend.engine.json",
     "engines/Python/PagetendHelper/AGENTS.md",
-    "engines/Python/PagetendHelper/skills/pagetend-stats-routing.skill.md"
+    "engines/Python/PagetendHelper/skills/pagetend-stats-routing.skill.md",
+    "engines/Shell/ClickUpCLI/clickup_cli_runner.sh",
+    "engines/Shell/ClickUpCLI/clickup_cli.engine.json",
+    "engines/Shell/ClickUpCLI/AGENTS.md",
+    "engines/Shell/ClickUpCLI/skills/clickup-cli-routing.skill.md"
   ]
 }
