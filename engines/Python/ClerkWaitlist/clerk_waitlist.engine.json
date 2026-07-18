@@ -1,0 +1,84 @@
+{
+  "id": "clerk-waitlist",
+  "name": "Clerk Waitlist",
+  "description": "Read and summarize Clerk waitlist entries through the Clerk Backend API.",
+  "tools": [
+    {
+      "name": "status",
+      "description": "Verify CLERK_SECRET_KEY and confirm the Clerk waitlist API is reachable.",
+      "command": "python3 clerk_waitlist.py status",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "list_entries",
+      "description": "List Clerk waitlist entries with optional status, email/ID query, ordering, and pagination filters.",
+      "command": "python3 clerk_waitlist.py list_entries --status {{status}} --query {{query}} --order_by {{order_by}} --limit {{limit}} --offset {{offset}}",
+      "required": [],
+      "parameters": {
+        "status": {
+          "type": "string",
+          "description": "Optional status filter: pending, invited, completed, or rejected.",
+          "default": null,
+          "enum": ["pending", "invited", "completed", "rejected"]
+        },
+        "query": {
+          "type": "string",
+          "description": "Optional email address or waitlist entry ID search.",
+          "default": null
+        },
+        "order_by": {
+          "type": "string",
+          "description": "Sort field, optionally prefixed with + or -. Defaults to -created_at.",
+          "default": "-created_at"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Entries per request, from 1 to 500. Defaults to 25.",
+          "default": 25
+        },
+        "offset": {
+          "type": "integer",
+          "description": "Number of entries to skip. Defaults to 0.",
+          "default": 0
+        }
+      }
+    },
+    {
+      "name": "get_entry",
+      "description": "Fetch one Clerk waitlist entry by its exact waitlist entry ID.",
+      "command": "python3 clerk_waitlist.py get_entry --entry_id {{entry_id}}",
+      "required": ["entry_id"],
+      "parameters": {
+        "entry_id": {
+          "type": "string",
+          "description": "Exact Clerk waitlist entry ID."
+        }
+      }
+    },
+    {
+      "name": "summarize",
+      "description": "Return compact waitlist totals, status counts, and oldest/newest creation timestamps.",
+      "command": "python3 clerk_waitlist.py summarize --fetch_all {{fetch_all}} --page_size {{page_size}}",
+      "required": [],
+      "parameters": {
+        "fetch_all": {
+          "type": "boolean",
+          "description": "Fetch all pages before summarizing. Defaults to true.",
+          "default": true
+        },
+        "page_size": {
+          "type": "integer",
+          "description": "Page size from 1 to 500. Defaults to 500.",
+          "default": 500
+        }
+      }
+    }
+  ],
+  "approval": {
+    "always": []
+  },
+  "env": {
+    "CLERK_SECRET_KEY": "Required Clerk Backend API secret key"
+  }
+}
