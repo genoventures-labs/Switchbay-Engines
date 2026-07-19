@@ -1,0 +1,40 @@
+{
+  "id": "apple-fm",
+  "name": "Apple Foundation Models (AFM 3)",
+  "description": "Apple Intelligence on-device and Private Cloud Compute inference. Free, private, zero-latency on-device lane. No API key required. Requires macOS 26 Tahoe with Apple Intelligence enabled.",
+  "tools": [
+    {
+      "name": "apple_fm_check",
+      "description": "Check if Apple Foundation Models (Apple Intelligence) are available on this device. Returns availability status, the full AFM3 model family details, and setup instructions if needed. Run this first before trying apple_fm_generate.",
+      "command": "/opt/homebrew/bin/python3 apple_fm.py apple_fm_check",
+      "required": [],
+      "parameters": {}
+    },
+    {
+      "name": "apple_fm_generate",
+      "description": "Run a prompt through Apple's on-device Foundation Model. Ideal for privacy-sensitive tasks, quick local inference with no API cost, or when offline. Choose the model variant based on task complexity: 'core' for fast everyday tasks, 'core-advanced' for heavier reasoning, 'cloud' or 'cloud-pro' for complex server-side tasks via Private Cloud Compute.",
+      "command": "/opt/homebrew/bin/python3 apple_fm.py apple_fm_generate --prompt {{prompt}} --system {{system}} --model {{model}}",
+      "required": ["prompt"],
+      "parameters": {
+        "prompt": {
+          "type": "string",
+          "description": "The text prompt to send to the Apple Foundation Model."
+        },
+        "system": {
+          "type": "string",
+          "description": "Optional system instructions / persona for the model.",
+          "default": ""
+        },
+        "model": {
+          "type": "string",
+          "description": "AFM3 model variant: 'core' (AFM 3 Core, 3B, fast on-device), 'core-advanced' (AFM 3 Core Advanced, 20B sparse, heavier tasks), 'cloud' (AFM 3 Cloud, Private Cloud Compute), 'cloud-pro' (AFM 3 Cloud Pro, complex reasoning). 'image' not yet supported.",
+          "default": "core",
+          "enum": ["core", "core-advanced", "cloud", "cloud-pro"]
+        }
+      }
+    }
+  ],
+  "approval": {},
+  "env": {}
+}
+
