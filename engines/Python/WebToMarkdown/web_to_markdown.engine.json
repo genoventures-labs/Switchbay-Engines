@@ -1,0 +1,53 @@
+{
+  "id": "web-to-markdown",
+  "name": "Web to Markdown",
+  "description": "Fetch a public webpage or crawl a bounded same-origin website into clean, metadata-rich Markdown and JSONL documents for retrieval and RAG workflows.",
+  "tools": [
+    {
+      "name": "fetch_page",
+      "description": "Fetch one public HTML page, strip scripts/navigation noise, preserve headings, lists, links, code, and metadata, then return or save RAG-friendly Markdown.",
+      "command": "python3 web_to_markdown.py fetch_page --url {{url}} --output_path {{output_path}} --timeout {{timeout}} --max_bytes {{max_bytes}} --allow_private {{allow_private}} --include_markdown {{include_markdown}}",
+      "required": ["url"],
+      "parameters": {
+        "url": {"type": "string", "description": "Public http:// or https:// webpage URL."},
+        "output_path": {"type": "string", "description": "Optional Markdown output file. Omit to return Markdown only.", "default": null},
+        "timeout": {"type": "integer", "description": "Request timeout in seconds. Default 20.", "default": 20},
+        "max_bytes": {"type": "integer", "description": "Maximum HTML response size. Default 5,000,000 bytes.", "default": 5000000},
+        "allow_private": {"type": "boolean", "description": "Allow localhost/private-network targets. Default false; enable only for trusted local sites.", "default": false},
+        "include_markdown": {"type": "boolean", "description": "Include full Markdown in JSON stdout. Set false when saving large pages to disk.", "default": true}
+      }
+    },
+    {
+      "name": "crawl_site",
+      "description": "Breadth-first crawl a bounded, same-origin website. Respects robots.txt by default and writes one Markdown file per page, corpus.json metadata, and documents.jsonl ready for ingestion.",
+      "command": "python3 web_to_markdown.py crawl_site --url {{url}} --output_dir {{output_dir}} --max_pages {{max_pages}} --max_depth {{max_depth}} --delay {{delay}} --timeout {{timeout}} --max_bytes {{max_bytes}} --include {{include}} --exclude {{exclude}} --respect_robots {{respect_robots}} --allow_private {{allow_private}}",
+      "required": ["url"],
+      "parameters": {
+        "url": {"type": "string", "description": "Public starting URL. Crawl remains on the same scheme and host."},
+        "output_dir": {"type": "string", "description": "Optional destination directory. Defaults under ~/.switchbay/web-corpora/.", "default": null},
+        "max_pages": {"type": "integer", "description": "Maximum pages to write, 1-500. Default 50.", "default": 50},
+        "max_depth": {"type": "integer", "description": "Maximum link depth from the starting page, 0-10. Default 2.", "default": 2},
+        "delay": {"type": "number", "description": "Polite delay between requests in seconds. Default 0.35.", "default": 0.35},
+        "timeout": {"type": "integer", "description": "Per-request timeout in seconds. Default 20.", "default": 20},
+        "max_bytes": {"type": "integer", "description": "Maximum bytes accepted per page. Default 5,000,000.", "default": 5000000},
+        "include": {"type": "string", "description": "Optional regular expression URLs must match.", "default": null},
+        "exclude": {"type": "string", "description": "Optional regular expression for URLs to skip, such as /login|/cart.", "default": null},
+        "respect_robots": {"type": "boolean", "description": "Respect robots.txt. Default true.", "default": true},
+        "allow_private": {"type": "boolean", "description": "Allow localhost/private-network targets. Default false.", "default": false}
+      }
+    },
+    {
+      "name": "inspect_corpus",
+      "description": "Read a generated corpus.json and return a compact page inventory, errors, paths, word counts, hashes, and source metadata without loading every Markdown document.",
+      "command": "python3 web_to_markdown.py inspect_corpus --corpus_path {{corpus_path}} --limit {{limit}}",
+      "required": ["corpus_path"],
+      "parameters": {
+        "corpus_path": {"type": "string", "description": "Path to corpus.json or its containing crawl directory."},
+        "limit": {"type": "integer", "description": "Maximum page and error records to return. Default 20.", "default": 20}
+      }
+    }
+  ],
+  "approval": {"always": []},
+  "env": {},
+  "data_dir": "~/.switchbay/web-corpora"
+}
