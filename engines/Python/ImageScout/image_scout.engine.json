@@ -1,0 +1,95 @@
+{
+  "id": "image-scout",
+  "name": "Image Scout",
+  "description": "Prepares local and remote images for reliable model vision: inspection, orientation normalization, resizing, overlapping detail tiles, optional local OCR, task-specific reasoning protocols, and provider-native payload files.",
+  "tools": [
+    {
+      "name": "inspect_image",
+      "description": "Inspect a local image path or public HTTP(S) URL before sending it to a vision model. Returns format, dimensions, orientation, animation state, hash, and a recommended detail strategy.",
+      "command": "python3 image_scout.py inspect_image --source {{source}}",
+      "required": ["source"],
+      "parameters": {
+        "source": {"type": "string", "description": "Local image path or public http(s) image URL."}
+      }
+    },
+    {
+      "name": "prepare_image",
+      "description": "Normalize EXIF orientation, flatten transparency, strip metadata, resize oversized images, and emit a provider-safe JPEG, PNG, or WebP artifact.",
+      "command": "python3 image_scout.py prepare_image --source {{source}} --max_edge {{max_edge}} --output_format {{output_format}} --quality {{quality}}",
+      "required": ["source"],
+      "parameters": {
+        "source": {"type": "string", "description": "Local image path or public http(s) image URL."},
+        "max_edge": {"type": "integer", "description": "Maximum width or height in pixels. Default: 2048.", "default": 2048},
+        "output_format": {"type": "string", "description": "Normalized output format.", "default": "jpeg", "enum": ["jpeg", "png", "webp"]},
+        "quality": {"type": "integer", "description": "JPEG/WebP quality from 40 to 100. Default: 88.", "default": 88}
+      }
+    },
+    {
+      "name": "build_vision_bundle",
+      "description": "Build the high-reliability vision package: normalized overview, overlapping detail tiles when needed, optional local OCR, ordered artifact paths, an inspection protocol, and a strict response contract. Use this for screenshots, documents, charts, code, or dense images.",
+      "command": "python3 image_scout.py build_vision_bundle --source {{source}} --task {{task}} --question {{question}} --tile_size {{tile_size}} --overlap {{overlap}} --max_tiles {{max_tiles}}",
+      "required": ["source"],
+      "parameters": {
+        "source": {"type": "string", "description": "Local image path or public http(s) image URL."},
+        "task": {"type": "string", "description": "Selects the model inspection protocol.", "default": "general", "enum": ["general", "ui", "document", "chart", "code", "comparison"]},
+        "question": {"type": "string", "description": "The specific question the model should answer after inspecting the image.", "default": "Analyze the image."},
+        "tile_size": {"type": "integer", "description": "Detail crop size in pixels. Default: 1280.", "default": 1280},
+        "overlap": {"type": "number", "description": "Fractional overlap between adjacent tiles. Default: 0.12.", "default": 0.12},
+        "max_tiles": {"type": "integer", "description": "Hard cap on detail tiles. Default: 12.", "default": 12}
+      }
+    },
+    {
+      "name": "build_vision_bundle_with_ocr",
+      "description": "Build the same high-reliability vision package while also running optional, fully local Tesseract OCR. Treat OCR as a fallible hint and verify it against the image.",
+      "command": "python3 image_scout.py build_vision_bundle --source {{source}} --task {{task}} --question {{question}} --tile_size {{tile_size}} --overlap {{overlap}} --max_tiles {{max_tiles}} --ocr --ocr_language {{ocr_language}}",
+      "required": ["source"],
+      "parameters": {
+        "source": {"type": "string", "description": "Local image path or public http(s) image URL."},
+        "task": {"type": "string", "description": "Selects the model inspection protocol.", "default": "document", "enum": ["general", "ui", "document", "chart", "code", "comparison"]},
+        "question": {"type": "string", "description": "The specific question the model should answer after inspecting the image.", "default": "Extract and interpret the visible text."},
+        "tile_size": {"type": "integer", "description": "Detail crop size in pixels. Default: 1280.", "default": 1280},
+        "overlap": {"type": "number", "description": "Fractional overlap between adjacent tiles. Default: 0.12.", "default": 0.12},
+        "max_tiles": {"type": "integer", "description": "Hard cap on detail tiles. Default: 12.", "default": 12},
+        "ocr_language": {"type": "string", "description": "Installed Tesseract language code. Default: eng.", "default": "eng"}
+      }
+    },
+    {
+      "name": "vision_prompt",
+      "description": "Generate a compact task-specific prompt that makes the model separate visible facts, exact text, interpretation, and uncertainty.",
+      "command": "python3 image_scout.py vision_prompt --task {{task}} --question {{question}}",
+      "required": [],
+      "parameters": {
+        "task": {"type": "string", "description": "Type of visual analysis.", "default": "general", "enum": ["general", "ui", "document", "chart", "code", "comparison"]},
+        "question": {"type": "string", "description": "Primary question for the model.", "default": "Analyze the image."}
+      }
+    },
+    {
+      "name": "encode_for_provider",
+      "description": "Normalize and encode an image into a provider-native JSON content block. Writes base64 to a payload file so tool output stays small. Supports OpenAI Responses, OpenAI Chat, Anthropic, Gemini, and a generic schema.",
+      "command": "python3 image_scout.py encode_for_provider --source {{source}} --provider {{provider}} --detail {{detail}} --max_edge {{max_edge}} --quality {{quality}}",
+      "required": ["source"],
+      "parameters": {
+        "source": {"type": "string", "description": "Local image path or public http(s) image URL."},
+        "provider": {"type": "string", "description": "Target native content-block schema.", "default": "openai-responses", "enum": ["openai-responses", "openai-chat", "anthropic", "gemini", "generic"]},
+        "detail": {"type": "string", "description": "Provider detail hint where supported.", "default": "auto", "enum": ["auto", "low", "high"]},
+        "max_edge": {"type": "integer", "description": "Maximum normalized width or height. Default: 2048.", "default": 2048},
+        "quality": {"type": "integer", "description": "JPEG encoding quality. Default: 88.", "default": 88}
+      }
+    },
+    {
+      "name": "doctor",
+      "description": "Check Image Scout dependencies and report local vision-preparation capabilities.",
+      "command": "python3 image_scout.py doctor",
+      "required": [],
+      "parameters": {}
+    }
+  ],
+  "approval": {"always": []},
+  "env": {
+    "SWITCHBAY_IMAGE_SCOUT_DIR": {
+      "description": "Optional artifact directory override. Defaults to ~/.switchbay/image-scout.",
+      "required": false
+    }
+  },
+  "data_dir": "~/.switchbay/image-scout"
+}
