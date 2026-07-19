@@ -1,0 +1,77 @@
+{
+  "id": "afm-helper",
+  "name": "AFM Small Model Helper",
+  "description": "Deterministic scaffolding for Apple Foundation Models: size and decompose tasks, rank compact context, compile constrained prompts, repair JSON, and validate model output.",
+  "tools": [
+    {
+      "name": "analyze_task",
+      "description": "Estimate task/context size and recommend single-pass vs decomposed execution for a small on-device model.",
+      "command": "python3 afm_helper.py analyze_task --task {{task}} --context {{context}} --max_context_tokens {{max_context_tokens}}",
+      "required": ["task"],
+      "parameters": {
+        "task": {"type": "string", "description": "The requested model task."},
+        "context": {"type": "string", "description": "Optional context that may accompany the task.", "default": null},
+        "max_context_tokens": {"type": "integer", "description": "Working context budget used for routing. Default 1800.", "default": 1800}
+      }
+    },
+    {
+      "name": "decompose_task",
+      "description": "Break a compound instruction into a short ordered plan that an on-device model can execute step by step.",
+      "command": "python3 afm_helper.py decompose_task --task {{task}} --max_steps {{max_steps}}",
+      "required": ["task"],
+      "parameters": {
+        "task": {"type": "string", "description": "Compound task to split."},
+        "max_steps": {"type": "integer", "description": "Maximum steps. Default 6.", "default": 6}
+      }
+    },
+    {
+      "name": "compile_prompt",
+      "description": "Compile a compact AFM-friendly prompt with explicit role, task, context, constraints, output contract, and final self-check.",
+      "command": "python3 afm_helper.py compile_prompt --task {{task}} --context {{context}} --constraints {{constraints}} --output_schema {{output_schema}} --max_input_tokens {{max_input_tokens}}",
+      "required": ["task"],
+      "parameters": {
+        "task": {"type": "string", "description": "The exact job the model must perform."},
+        "context": {"type": "string", "description": "Optional source context.", "default": null},
+        "constraints": {"type": "string", "description": "Comma, semicolon, newline, or JSON-list constraints.", "default": null},
+        "output_schema": {"type": "string", "description": "Optional JSON schema or example. When supplied, the prompt requests JSON only.", "default": null},
+        "max_input_tokens": {"type": "integer", "description": "Approximate total prompt budget. Default 2200.", "default": 2200}
+      }
+    },
+    {
+      "name": "build_context",
+      "description": "Rank and select locally supplied document chunks by keyword overlap so AFM receives the smallest relevant context packet.",
+      "command": "python3 afm_helper.py build_context --query {{query}} --documents {{documents}} --max_tokens {{max_tokens}} --max_chunks {{max_chunks}}",
+      "required": ["query", "documents"],
+      "parameters": {
+        "query": {"type": "string", "description": "Question or task used to rank chunks."},
+        "documents": {"type": "string", "description": "Local text to split and rank. Separate natural chunks with blank lines."},
+        "max_tokens": {"type": "integer", "description": "Approximate selected-context budget. Default 1600.", "default": 1600},
+        "max_chunks": {"type": "integer", "description": "Maximum selected chunks. Default 8.", "default": 8}
+      }
+    },
+    {
+      "name": "repair_json",
+      "description": "Extract and deterministically repair common small-model JSON defects such as code fences, trailing commas, and Python literals.",
+      "command": "python3 afm_helper.py repair_json --text {{text}}",
+      "required": ["text"],
+      "parameters": {
+        "text": {"type": "string", "description": "Raw model output expected to contain JSON."}
+      }
+    },
+    {
+      "name": "validate_output",
+      "description": "Validate output length, JSON parseability, and required fields before Switchbay trusts or forwards an AFM result.",
+      "command": "python3 afm_helper.py validate_output --text {{text}} --required_keys {{required_keys}} --max_chars {{max_chars}} --expect_json {{expect_json}}",
+      "required": ["text"],
+      "parameters": {
+        "text": {"type": "string", "description": "Raw model output."},
+        "required_keys": {"type": "string", "description": "Optional required keys as CSV, newline list, or JSON list.", "default": null},
+        "max_chars": {"type": "integer", "description": "Maximum accepted output characters. Default 12000.", "default": 12000},
+        "expect_json": {"type": "boolean", "description": "Whether valid JSON is required. Default false.", "default": false}
+      }
+    }
+  ],
+  "approval": {"always": []},
+  "env": {},
+  "data_dir": null
+}
